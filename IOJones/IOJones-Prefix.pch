@@ -1,0 +1,22 @@
+//
+// Prefix header for all source files of the 'IOJones' target in the 'IOJones' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif
+
+#define assignWithNotice(x,y,z) [x willChangeValueForKey:@""#y];y=z;[x didChangeValueForKey:@""#y];
+#define muteWithNotice(x,y,z) [x willChangeValueForKey:@""#y];z;[x didChangeValueForKey:@""#y];
+#define delayWithNotice(x,y,z) [x performSelector:@selector(willChangeValueForKey:) withObject:@""#y afterDelay:z];[x performSelector:@selector(didChangeValueForKey:) withObject:@""#y afterDelay:z];
+NS_INLINE NSError* ModalError(NSError *error){
+    if (error)
+        [[NSAlert alertWithError:error] runModal];
+    return error;
+}
+NS_INLINE void SplitView(NSSplitView *splitView){
+    NSArray *rects = [NSUserDefaults.standardUserDefaults stringArrayForKey:[@"NSSplitView Subview Frames " stringByAppendingString:splitView.autosaveName]];
+    if (!rects) return;
+    NSRect rect = NSRectFromString([rects objectAtIndex:0]);
+    [splitView setPosition:splitView.isVertical?NSMaxX(rect):NSMaxY(rect) ofDividerAtIndex:0];
+}

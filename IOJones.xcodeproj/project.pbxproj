@@ -1,0 +1,346 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B008B0C316FABF49003ADA73 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B008B0C216FABF49003ADA73 /* IOKit.framework */; };
+		B013633016F04D2200531638 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B013632F16F04D2200531638 /* Cocoa.framework */; };
+		B013633C16F04D2200531638 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B013633B16F04D2200531638 /* main.m */; };
+		B013634316F04D2200531638 /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = B013634216F04D2200531638 /* Document.m */; };
+		B013634616F04D2200531638 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = B013634416F04D2200531638 /* Document.xib */; };
+		B013634916F04D2200531638 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = B013634716F04D2200531638 /* MainMenu.xib */; };
+		B013635116F04DEC00531638 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B013635016F04DEC00531638 /* AppDelegate.m */; };
+		B013635416F04E2600531638 /* IOReg.m in Sources */ = {isa = PBXBuildFile; fileRef = B013635316F04E2600531638 /* IOReg.m */; };
+		B013635616F053D800531638 /* IOJones.icns in Resources */ = {isa = PBXBuildFile; fileRef = B013635516F053D800531638 /* IOJones.icns */; };
+		B0D44A5D16FD19CD0026D251 /* ioreg.icns in Resources */ = {isa = PBXBuildFile; fileRef = B0D44A5C16FD19CD0026D251 /* ioreg.icns */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B008B0C216FABF49003ADA73 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		B013632C16F04D2200531638 /* IOJones.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IOJones.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B013632F16F04D2200531638 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		B013633216F04D2200531638 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		B013633316F04D2200531638 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		B013633416F04D2200531638 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		B013633716F04D2200531638 /* IOJones-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "IOJones-Info.plist"; sourceTree = "<group>"; };
+		B013633B16F04D2200531638 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		B013633D16F04D2200531638 /* IOJones-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IOJones-Prefix.pch"; sourceTree = "<group>"; };
+		B013634116F04D2200531638 /* Document.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
+		B013634216F04D2200531638 /* Document.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Document.m; sourceTree = "<group>"; };
+		B013634516F04D2200531638 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Document.xib; sourceTree = "<group>"; };
+		B013634816F04D2200531638 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		B013634F16F04DEC00531638 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		B013635016F04DEC00531638 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		B013635216F04E2600531638 /* IOReg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOReg.h; sourceTree = "<group>"; };
+		B013635316F04E2600531638 /* IOReg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOReg.m; sourceTree = "<group>"; };
+		B013635516F053D800531638 /* IOJones.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = IOJones.icns; path = ../IOJones.icns; sourceTree = "<group>"; };
+		B0D44A5C16FD19CD0026D251 /* ioreg.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ioreg.icns; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B013632916F04D2200531638 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B008B0C316FABF49003ADA73 /* IOKit.framework in Frameworks */,
+				B013633016F04D2200531638 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B013632316F04D2200531638 = {
+			isa = PBXGroup;
+			children = (
+				B013633516F04D2200531638 /* IOJones */,
+				B013632E16F04D2200531638 /* Frameworks */,
+				B013632D16F04D2200531638 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B013632D16F04D2200531638 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B013632C16F04D2200531638 /* IOJones.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B013632E16F04D2200531638 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B008B0C216FABF49003ADA73 /* IOKit.framework */,
+				B013632F16F04D2200531638 /* Cocoa.framework */,
+				B013633116F04D2200531638 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B013633116F04D2200531638 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B013633216F04D2200531638 /* AppKit.framework */,
+				B013633316F04D2200531638 /* CoreData.framework */,
+				B013633416F04D2200531638 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		B013633516F04D2200531638 /* IOJones */ = {
+			isa = PBXGroup;
+			children = (
+				B013634F16F04DEC00531638 /* AppDelegate.h */,
+				B013635016F04DEC00531638 /* AppDelegate.m */,
+				B013634116F04D2200531638 /* Document.h */,
+				B013634216F04D2200531638 /* Document.m */,
+				B013634416F04D2200531638 /* Document.xib */,
+				B013635216F04E2600531638 /* IOReg.h */,
+				B013635316F04E2600531638 /* IOReg.m */,
+				B013634716F04D2200531638 /* MainMenu.xib */,
+				B013633616F04D2200531638 /* Supporting Files */,
+			);
+			path = IOJones;
+			sourceTree = "<group>";
+		};
+		B013633616F04D2200531638 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				B013633716F04D2200531638 /* IOJones-Info.plist */,
+				B013633B16F04D2200531638 /* main.m */,
+				B013635516F053D800531638 /* IOJones.icns */,
+				B0D44A5C16FD19CD0026D251 /* ioreg.icns */,
+				B013633D16F04D2200531638 /* IOJones-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B013632B16F04D2200531638 /* IOJones */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B013634C16F04D2200531638 /* Build configuration list for PBXNativeTarget "IOJones" */;
+			buildPhases = (
+				B013632816F04D2200531638 /* Sources */,
+				B013632916F04D2200531638 /* Frameworks */,
+				B013632A16F04D2200531638 /* Resources */,
+				B03995C216FD580800103B2E /* Increment Build Number */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = IOJones;
+			productName = IOJones;
+			productReference = B013632C16F04D2200531638 /* IOJones.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B013632416F04D2200531638 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = Sourceforge;
+			};
+			buildConfigurationList = B013632716F04D2200531638 /* Build configuration list for PBXProject "IOJones" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = B013632316F04D2200531638;
+			productRefGroup = B013632D16F04D2200531638 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B013632B16F04D2200531638 /* IOJones */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B013632A16F04D2200531638 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B013634616F04D2200531638 /* Document.xib in Resources */,
+				B013634916F04D2200531638 /* MainMenu.xib in Resources */,
+				B013635616F053D800531638 /* IOJones.icns in Resources */,
+				B0D44A5D16FD19CD0026D251 /* ioreg.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		B03995C216FD580800103B2E /* Increment Build Number */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Increment Build Number";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "let NEW_PROJECT_VERSION=CURRENT_PROJECT_VERSION+1\nsed -i '' \"s/CURRENT_PROJECT_VERSION = $CURRENT_PROJECT_VERSION/CURRENT_PROJECT_VERSION = $NEW_PROJECT_VERSION/\" $PROJECT_NAME.xcodeproj/project.pbxproj";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B013632816F04D2200531638 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B013633C16F04D2200531638 /* main.m in Sources */,
+				B013634316F04D2200531638 /* Document.m in Sources */,
+				B013635116F04DEC00531638 /* AppDelegate.m in Sources */,
+				B013635416F04E2600531638 /* IOReg.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		B013634416F04D2200531638 /* Document.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B013634516F04D2200531638 /* en */,
+			);
+			name = Document.xib;
+			sourceTree = "<group>";
+		};
+		B013634716F04D2200531638 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B013634816F04D2200531638 /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		B013634A16F04D2200531638 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_MARKETING_VERSION = 0.5;
+				CURRENT_PROJECT_VERSION = 41;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		B013634B16F04D2200531638 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				CURRENT_MARKETING_VERSION = 0.5;
+				CURRENT_PROJECT_VERSION = 41;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		B013634D16F04D2200531638 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "IOJones/IOJones-Prefix.pch";
+				INFOPLIST_FILE = "IOJones/IOJones-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		B013634E16F04D2200531638 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "IOJones/IOJones-Prefix.pch";
+				INFOPLIST_FILE = "IOJones/IOJones-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B013632716F04D2200531638 /* Build configuration list for PBXProject "IOJones" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B013634A16F04D2200531638 /* Debug */,
+				B013634B16F04D2200531638 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B013634C16F04D2200531638 /* Build configuration list for PBXNativeTarget "IOJones" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B013634D16F04D2200531638 /* Debug */,
+				B013634E16F04D2200531638 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B013632416F04D2200531638 /* Project object */;
+}
