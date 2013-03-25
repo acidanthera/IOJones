@@ -7,6 +7,7 @@
 //
 
 #import "IOReg.h"
+#import "Document.h"
 #include <mach/mach.h>
 static NSArray *systemPlanes;
 static NSString *systemName;

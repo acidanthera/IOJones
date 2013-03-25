@@ -5,6 +5,7 @@
 //  Created by PHPdev32 on 3/13/13.
 //  Licensed under GPLv3, full text at http://www.gnu.org/licenses/gpl-3.0.txt
 //
+@class IORegRoot;
 
 @interface Document : NSDocument <NSOutlineViewDelegate> {
     @private
