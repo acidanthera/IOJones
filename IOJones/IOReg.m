@@ -103,7 +103,7 @@ static NSString *systemType;
     return [planes.allValues valueForKeyPath:@"path"];
 }
 -(NSArray *)sortedPaths {
-    NSString *plane = document.currentPlane;
+    NSString *plane = document.currentPlane.plane;
     NSMutableArray *paths = [self.paths mutableCopy];
     if (paths.count > 1) {
         for (NSString *path in paths)
@@ -116,7 +116,7 @@ static NSString *systemType;
     return [paths copy];
 }
 -(NSString *)currentName {
-    NSDictionary *plane = [planes objectForKey:document.currentPlane];
+    NSDictionary *plane = [planes objectForKey:document.currentPlane.plane];
     NSString *planeName = [plane objectForKey:@"name"];
     NSString *location;
     if (plane && planeName) {

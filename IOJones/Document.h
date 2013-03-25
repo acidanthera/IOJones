@@ -15,13 +15,13 @@
 
 @property (assign) IBOutlet NSOutlineView *treeView;
 @property (assign) IBOutlet NSSearchField *findView;
-@property (readonly) NSString *currentPlane;
+@property (readonly) IORegRoot *currentPlane;
 @property (readonly) NSString *title;
 @property NSIndexSet *selectedPlanes;
 @property NSArray *selectedObjects;
 @property NSString *hostname;
 @property NSDate *timestamp;
-@property NSDictionary *allPlanes;
+@property NSArray *allPlanes;
 @property NSMutableDictionary *allClasses;
 @property NSMutableDictionary *allBundles;
 @property NSMapTable *allObjects;

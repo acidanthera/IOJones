@@ -50,7 +50,7 @@
 {
     [super windowControllerDidLoadNib:aController];
     // Add any code here that needs to be executed once the windowController has loaded the document's window.
-    muteWithNotice(self, selectedPlanes, [self setSelectedPlanes:[NSIndexSet indexSetWithIndex:[allPlanes.allKeys indexOfObject:@"IOService"]]])
+    muteWithNotice(self, selectedPlanes, [self setSelectedPlanes:[NSIndexSet indexSetWithIndex:[[allPlanes valueForKey:@"plane"] indexOfObject:@"IOService"]]])
     delayWithNotice(self, title, 0)
     //FIXME: search
     //FIXME: updates
@@ -98,8 +98,8 @@
     id item = [[[treeView itemAtRow:treeView.selectedRow] representedObject] node];
     NSString *path = [sender titleOfSelectedItem];
     NSUInteger i = 0;
-    for (NSString *plane in [allPlanes.allKeys sortedArrayUsingSelector:@selector(compare:)])//FIXME: not the right order here!
-        if (++i && [path hasPrefix:plane]) {
+    for (IORegRoot *plane in allPlanes)
+        if (++i && [path hasPrefix:plane.plane]) {
             muteWithNotice(self, selectedPlanes, [self setSelectedPlanes:[NSIndexSet indexSetWithIndex:i-1]])
             break;
         }
@@ -113,7 +113,7 @@
     [findView.window makeFirstResponder:findView];
 }
 -(IBAction)filterTree:(id)sender {
-    IORegRoot *root = [allPlanes objectForKey:self.currentPlane];
+    IORegRoot *root = self.currentPlane;
     if (![[sender stringValue] length]) {
         root.children = root.pleated;
         [self performSelector:@selector(expandTree:) withObject:nil afterDelay:0];
@@ -143,10 +143,10 @@
     return _selectedObjects;
 }
 -(NSString *)title {
-    return [NSString stringWithFormat:@"%@ - %@ - %@", [IOReg systemName], self.currentPlane, [[[[treeView itemAtRow:treeView.selectedRow] representedObject] node] currentName]];
+    return [NSString stringWithFormat:@"%@ - %@ - %@", [IOReg systemName], self.currentPlane.plane, [[[[treeView itemAtRow:treeView.selectedRow] representedObject] node] currentName]];
 }
 -(NSString *)currentPlane {
-    return [allPlanes.allKeys objectAtIndex:_selectedPlanes.firstIndex];
+    return [allPlanes objectAtIndex:_selectedPlanes.firstIndex];
 }
 
 #pragma mark Functions
@@ -157,16 +157,15 @@
     [allBundles setObject:@"com.apple.kernel" forKey:nsroot];
     hostname = [NSString stringWithFormat:@"%@ (%@)", [IOReg systemName], [IOReg systemType]];
     IOReg *root = [IOReg create:IORegistryGetRootEntry(kIOMasterPortDefault) for:self];
-    NSArray *planes = [IOReg systemPlanes];
     NSMutableArray *temp = [NSMutableArray array];
-    for (NSString *plane in planes) {
+    for (NSString *plane in [IOReg systemPlanes]) {
         [temp addObject:[IORegRoot root:root on:plane]];
         io_iterator_t it;
         IORegistryCreateIterator(kIOMasterPortDefault, plane.UTF8String, 0, &it);
         [self walk:it for:temp.lastObject];
         IOObjectRelease(it);
     }
-    allPlanes = [NSDictionary dictionaryWithObjects:temp forKeys:planes];
+    allPlanes = [temp copy];
 }
 - (void)walk:(io_iterator_t)iterator for:(IORegNode *)parent {
     io_object_t obj;
