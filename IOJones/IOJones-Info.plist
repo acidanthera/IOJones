@@ -7,46 +7,24 @@
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>com.apple.ioregistryexplorer.archive</string>
-			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>ioreg.icns</string>
+			<string>iojones.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>IORegistryExplorer document</string>
+			<string>IOJones document</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>net.sourceforge.iojones</string>
+			</array>
 			<key>NSDocumentClass</key>
 			<string>Document</string>
 		</dict>
 	</array>
-	<key>UTExportedTypeDeclarations</key>
-	<array>
-		<dict>
-			<key>UTTypeDescription</key>
-			<string>IORegistryExplorer document</string>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>com.apple.property-list</string>
-				<string>public.content</string>
-				<string>public.data</string>
-			</array>
-			<key>UTTypeIdentifier</key>
-			<string>com.apple.ioregistryexplorer.archive</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>ioreg</string>
-				</array>
-			</dict>
-		</dict>
-	</array>
-	<key>CFBundleIconFile</key>
-	<string>IOJones</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
+	<key>CFBundleIconFile</key>
+	<string>hat</string>
 	<key>CFBundleIdentifier</key>
 	<string>net.sourceforge.${PRODUCT_NAME:rfc1034identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -69,5 +47,48 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.apple.property-list</string>
+				<string>public.content</string>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>IOJones document</string>
+			<key>UTTypeIdentifier</key>
+			<string>net.sourceforge.iojones</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>iojones</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIconFile</key>
+			<string>ioreg.icns</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.apple.property-list</string>
+				<string>public.content</string>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>IORegistryExplorer document</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.apple.ioregistryexplorer.archive</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>ioreg</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 </dict>
 </plist>

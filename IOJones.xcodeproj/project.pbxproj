@@ -15,7 +15,9 @@
 		B013634916F04D2200531638 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = B013634716F04D2200531638 /* MainMenu.xib */; };
 		B013635116F04DEC00531638 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B013635016F04DEC00531638 /* AppDelegate.m */; };
 		B013635416F04E2600531638 /* IOReg.m in Sources */ = {isa = PBXBuildFile; fileRef = B013635316F04E2600531638 /* IOReg.m */; };
-		B013635616F053D800531638 /* IOJones.icns in Resources */ = {isa = PBXBuildFile; fileRef = B013635516F053D800531638 /* IOJones.icns */; };
+		B013635616F053D800531638 /* iojones.icns in Resources */ = {isa = PBXBuildFile; fileRef = B013635516F053D800531638 /* iojones.icns */; };
+		B08D5A20170001AD00CD840F /* Base.m in Sources */ = {isa = PBXBuildFile; fileRef = B08D5A1F170001AD00CD840F /* Base.m */; };
+		B08D5A231700353B00CD840F /* hat.icns in Resources */ = {isa = PBXBuildFile; fileRef = B08D5A221700353B00CD840F /* hat.icns */; };
 		B0D44A5D16FD19CD0026D251 /* ioreg.icns in Resources */ = {isa = PBXBuildFile; fileRef = B0D44A5C16FD19CD0026D251 /* ioreg.icns */; };
 /* End PBXBuildFile section */
 
@@ -37,7 +39,11 @@
 		B013635016F04DEC00531638 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		B013635216F04E2600531638 /* IOReg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOReg.h; sourceTree = "<group>"; };
 		B013635316F04E2600531638 /* IOReg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOReg.m; sourceTree = "<group>"; };
-		B013635516F053D800531638 /* IOJones.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = IOJones.icns; path = ../IOJones.icns; sourceTree = "<group>"; };
+		B013635516F053D800531638 /* iojones.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = iojones.icns; path = ../iojones.icns; sourceTree = "<group>"; };
+		B08D5A1E170001AD00CD840F /* Base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base.h; sourceTree = "<group>"; };
+		B08D5A1F170001AD00CD840F /* Base.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base.m; sourceTree = "<group>"; };
+		B08D5A21170026BF00CD840F /* IOKitLibPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOKitLibPrivate.h; sourceTree = "<group>"; };
+		B08D5A221700353B00CD840F /* hat.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = hat.icns; sourceTree = SOURCE_ROOT; };
 		B0D44A5C16FD19CD0026D251 /* ioreg.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ioreg.icns; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -96,6 +102,8 @@
 			children = (
 				B013634F16F04DEC00531638 /* AppDelegate.h */,
 				B013635016F04DEC00531638 /* AppDelegate.m */,
+				B08D5A1E170001AD00CD840F /* Base.h */,
+				B08D5A1F170001AD00CD840F /* Base.m */,
 				B013634116F04D2200531638 /* Document.h */,
 				B013634216F04D2200531638 /* Document.m */,
 				B013634416F04D2200531638 /* Document.xib */,
@@ -112,7 +120,9 @@
 			children = (
 				B013633716F04D2200531638 /* IOJones-Info.plist */,
 				B013633B16F04D2200531638 /* main.m */,
-				B013635516F053D800531638 /* IOJones.icns */,
+				B08D5A21170026BF00CD840F /* IOKitLibPrivate.h */,
+				B013635516F053D800531638 /* iojones.icns */,
+				B08D5A221700353B00CD840F /* hat.icns */,
 				B0D44A5C16FD19CD0026D251 /* ioreg.icns */,
 				B013633D16F04D2200531638 /* IOJones-Prefix.pch */,
 			);
@@ -173,8 +183,9 @@
 			files = (
 				B013634616F04D2200531638 /* Document.xib in Resources */,
 				B013634916F04D2200531638 /* MainMenu.xib in Resources */,
-				B013635616F053D800531638 /* IOJones.icns in Resources */,
+				B013635616F053D800531638 /* iojones.icns in Resources */,
 				B0D44A5D16FD19CD0026D251 /* ioreg.icns in Resources */,
+				B08D5A231700353B00CD840F /* hat.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -207,6 +218,7 @@
 				B013634316F04D2200531638 /* Document.m in Sources */,
 				B013635116F04DEC00531638 /* AppDelegate.m in Sources */,
 				B013635416F04E2600531638 /* IOReg.m in Sources */,
+				B08D5A20170001AD00CD840F /* Base.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -246,8 +258,8 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_MARKETING_VERSION = 0.5;
-				CURRENT_PROJECT_VERSION = 42;
+				CURRENT_MARKETING_VERSION = 0.9;
+				CURRENT_PROJECT_VERSION = 65;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -281,8 +293,8 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_MARKETING_VERSION = 0.5;
-				CURRENT_PROJECT_VERSION = 42;
+				CURRENT_MARKETING_VERSION = 0.9;
+				CURRENT_PROJECT_VERSION = 65;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;

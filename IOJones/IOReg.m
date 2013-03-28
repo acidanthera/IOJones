@@ -8,30 +8,48 @@
 
 #import "IOReg.h"
 #import "Document.h"
+#import "Base.h"
+#import "IOKitLibPrivate.h"
 #include <mach/mach.h>
+
+@implementation IOReg
 static NSArray *systemPlanes;
 static NSString *systemName;
 static NSString *systemType;
+static NSDictionary *red;
+static NSDictionary *green;
 
-@implementation IOReg
 @synthesize name;
 @synthesize ioclass;
 @synthesize entryID;
 @synthesize properties;
 @synthesize planes;
 @synthesize document;
-@synthesize found;
+@synthesize added;
+@synthesize removed;
+@synthesize kernel;
+@synthesize user;
+@synthesize busy;
+@synthesize state;
+@synthesize status;
 
 +(void)initialize {
+    red = @{NSForegroundColorAttributeName:[NSColor redColor], NSStrikethroughStyleAttributeName:@1};
+    green = @{NSForegroundColorAttributeName:[NSColor colorWithCalibratedRed:0 green:0.75 blue:0 alpha:1], NSUnderlineStyleAttributeName:@1};
     struct host_basic_info info;
     UInt32 size = sizeof(struct host_basic_info);
     char *type, *subtype;
     host_info(mach_host_self(), HOST_BASIC_INFO, (host_info_t)&info, &size);
     systemName = [NSHost.currentHost localizedName];
     slot_name(info.cpu_type, info.cpu_subtype, &type, &subtype);
-    systemType = [NSString stringWithUTF8String:type];
-    io_service_t root = IORegistryGetRootEntry(kIOMasterPortDefault);
-    systemPlanes = [(__bridge_transfer NSDictionary *)IORegistryEntryCreateCFProperty(root, CFSTR("IORegistryPlanes"), kCFAllocatorDefault, 0) allValues];
+    systemType = [NSString stringWithCString:type encoding:NSMacOSRomanStringEncoding];
+    io_registry_entry_t root = IORegistryGetRootEntry(kIOMasterPortDefault);
+    NSMutableArray *planes = [NSMutableArray array];
+    for (NSString *plane in [(__bridge_transfer NSDictionary *)IORegistryEntryCreateCFProperty(root, CFSTR("IORegistryPlanes"), kCFAllocatorDefault, 0) allValues]) {
+        if ([plane isEqualToString:@"IOService"]) [planes insertObject:plane atIndex:0];
+        else [planes addObject:plane];
+    }
+    systemPlanes = [planes copy];
     IOObjectRelease(root);
 }
 +(NSArray *)systemPlanes {
@@ -46,13 +64,17 @@ static NSString *systemType;
 
 +(IOReg *)create:(io_registry_entry_t)entry for:(Document *)document{
     IOReg *temp = [IOReg new];
-    temp.found = [NSDate date];
+    temp.added = [NSDate date];
     temp.document = document;
-    temp.ioclass = (__bridge_transfer NSString *)IOObjectCopyClass(entry);
     io_name_t globalname = {};
     IORegistryEntryGetName(entry, globalname);
-    temp.name = [NSString stringWithUTF8String:globalname];
-    uint64_t entryid;
+    temp.name = [NSString stringWithCString:globalname encoding:NSMacOSRomanStringEncoding];
+    IOObjectGetClass(entry, globalname);
+    temp.ioclass = [NSString stringWithCString:globalname encoding:NSMacOSRomanStringEncoding];
+    temp.kernel = IOObjectGetKernelRetainCount(entry);
+    temp.user = IOObjectGetUserRetainCount(entry);
+    uint64_t entryid = 0, state = 0;
+    uint32_t busy = 0;
     IORegistryEntryGetRegistryEntryID(entry, &entryid);
     temp.entryID = entryid;
     CFMutableDictionaryRef properties;
@@ -60,24 +82,46 @@ static NSString *systemType;
     temp.properties = [IORegProperty createWithDictionary:(__bridge_transfer NSMutableDictionary *)properties];
     NSMutableDictionary *planes = [NSMutableDictionary dictionary];
     for (NSString *plane in systemPlanes) {
-        if (!IORegistryEntryInPlane(entry, plane.UTF8String)) continue;
+        if (!IORegistryEntryInPlane(entry, [plane cStringUsingEncoding:NSMacOSRomanStringEncoding])) continue;
+        if ([plane isEqualToString:@"IOService"]) {
+            IOServiceGetState(entry, &state);
+            IOServiceGetBusyState(entry, &busy);
+        }
         io_name_t location = {}, name = {};
         io_string_t path = {};
-        IORegistryEntryGetLocationInPlane(entry, plane.UTF8String, location);
-        IORegistryEntryGetNameInPlane(entry, plane.UTF8String, name);
-        IORegistryEntryGetPath(entry, plane.UTF8String, path);
-        [planes setObject:@{@"name":[NSString stringWithUTF8String:name], @"location":[NSString stringWithUTF8String:location], @"path":[NSString stringWithUTF8String:path]} forKey:plane];
+        IORegistryEntryGetLocationInPlane(entry, [plane cStringUsingEncoding:NSMacOSRomanStringEncoding], location);
+        IORegistryEntryGetNameInPlane(entry, [plane cStringUsingEncoding:NSMacOSRomanStringEncoding], name);
+        IORegistryEntryGetPath(entry, [plane cStringUsingEncoding:NSMacOSRomanStringEncoding], path);
+        [planes setObject:@{@"name":[NSString stringWithCString:name encoding:NSMacOSRomanStringEncoding], @"location":[NSString stringWithCString:location encoding:NSMacOSRomanStringEncoding], @"path":[NSString stringWithCString:path encoding:NSMacOSRomanStringEncoding]} forKey:plane];
     }
+    temp.busy = busy;
+    temp.state = state;
     temp.planes = [planes copy];
     IOObjectRelease(entry);
     return temp;
 }
-
--(IOReg *)copyWithZone:(NSZone *)zone{
-    return [self copy];
++(IOReg *)createWithDictionary:(NSDictionary *)dictionary for:(Document *)document {
+    IOReg *temp = [IOReg new];
+    temp.document = document;
+    temp.ioclass = [dictionary objectForKey:@"class"];
+    temp.added = [dictionary objectForKey:@"added"];
+    temp.removed = [dictionary objectForKey:@"removed"];
+    temp.name = [dictionary objectForKey:@"name"];
+    temp.status = [[dictionary objectForKey:@"status"] longLongValue];
+    temp.state = [[dictionary objectForKey:@"state"] longLongValue];
+    temp.busy = [[dictionary objectForKey:@"busy"] longLongValue];
+    temp.kernel = [[dictionary objectForKey:@"kernel"] longLongValue];
+    temp.user = [[dictionary objectForKey:@"user"] longLongValue];
+    temp.entryID = [[dictionary objectForKey:@"id"] longLongValue];
+    temp.planes = [dictionary objectForKey:@"planes"];
+    temp.properties = [IORegProperty createWithDictionary:[dictionary objectForKey:@"properties"]];
+    return temp;
 }
--(IOReg *)copy {
-    return self;
+
+-(NSDictionary *)dictionaryRepresentation {
+    if (removed)
+        return @{@"class":ioclass, @"added":added, @"removed":removed, @"name":name, @"status":@(status), @"state":@(state), @"busy":@(busy), @"kernel":@(kernel), @"user":@(user), @"id":@(entryID), @"properties":[NSDictionary dictionaryWithObjects:[properties valueForKey:@"dictionaryRepresentation"] forKeys:[properties valueForKey:@"key"]], @"planes":planes};
+    return @{@"class":ioclass, @"added":added, @"name":name, @"status":@(status), @"state":@(state), @"busy":@(busy), @"kernel":@(kernel), @"user":@(user), @"id":@(entryID), @"properties":[NSDictionary dictionaryWithObjects:[properties valueForKey:@"dictionaryRepresentation"] forKeys:[properties valueForKey:@"key"]], @"planes":planes};
 }
 -(NSArray *)classChain {
     NSString *superclass, *class = ioclass;
@@ -103,7 +147,7 @@ static NSString *systemType;
     return [planes.allValues valueForKeyPath:@"path"];
 }
 -(NSArray *)sortedPaths {
-    NSString *plane = document.currentPlane.plane;
+    NSString *plane = document.selectedPlane.plane;
     NSMutableArray *paths = [self.paths mutableCopy];
     if (paths.count > 1) {
         for (NSString *path in paths)
@@ -116,68 +160,200 @@ static NSString *systemType;
     return [paths copy];
 }
 -(NSString *)currentName {
-    NSDictionary *plane = [planes objectForKey:document.currentPlane.plane];
-    NSString *planeName = [plane objectForKey:@"name"];
-    NSString *location;
-    if (plane && planeName) {
+    NSDictionary *plane;
+    NSString *planeName;
+    if ((plane = [planes objectForKey:document.selectedPlane.plane]) && (planeName = [plane objectForKey:@"name"])) {
+        NSString *location;
         if ((location = [plane objectForKey:@"location"]).length)
             return [NSString stringWithFormat:@"%@@%@", planeName, location];
         else return planeName;
     }
-    return name;
+    else return name;
+}
+-(id)displayName {
+    switch (status) {
+        case initial: return self.currentName;
+        case published: return [[NSAttributedString alloc] initWithString:self.currentName attributes:green];
+        case terminated: return [[NSAttributedString alloc] initWithString:self.currentName attributes:red];
+    }
+}
+-(bool)isActive {
+    return (state & kIOServiceInactiveState) == 0;
+}
+-(bool)isRegistered {
+    return (state & kIOServiceRegisteredState) != 0;
+}
+-(bool)isMatched {
+    return (state & kIOServiceMatchedState) != 0;
+}
+-(bool)isService {
+    return [self.classChain containsObject:@"IOService"];
+}
+-(NSString *)filteredProperty {
+    NSString *property = [[NSUserDefaults.standardUserDefaults dictionaryForKey:@"find"] objectForKey:@"property"];
+    for (IORegProperty *obj in properties)
+        if ([obj.key isEqualToString:property])
+            return obj.briefDescription;
+    return nil;
 }
 
 @end
 
 @implementation IORegNode
+static NSDateFormatter *dateFormatter;
 
 @synthesize parent;
 @synthesize node;
+@synthesize plane;
 @synthesize children;
++(void)initialize{
+    dateFormatter = [NSDateFormatter new];
+    [dateFormatter setDateStyle:NSDateFormatterShortStyle];
+    [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
+}
 
 +(IORegNode *)create:(IOReg *)node on:(IORegNode *)parent{
     IORegNode *temp = [IORegNode new];
     temp.node = node;
+    temp.plane = parent.plane;
     temp.parent = parent;
     if (parent.children) [parent.children addObject:temp];
     else parent.children = [NSMutableArray arrayWithObject:temp];
     return temp;
 }
++(IORegNode *)createWithDictionary:(NSDictionary *)dictionary on:(IORegNode *)parent {
+    IORegNode *temp = [IORegNode new];
+    temp.parent = parent;
+    temp.plane = parent.plane;
+    temp.node = (__bridge IOReg *)(NSMapGet(parent.node.document.allObjects, (void *)[[dictionary objectForKey:@"node"] longLongValue]));
+    if ([[dictionary objectForKey:@"children"] count]) {
+        temp.children = [NSMutableArray array];
+        for (NSDictionary *ioreg in [dictionary objectForKey:@"children"])
+            [temp.children addObject:[IORegNode createWithDictionary:ioreg on:temp]];
+    }
+    return temp;
+}
 
--(IORegNode *)copyWithZone:(NSZone *)zone {
-    return [self copy];
+-(NSDictionary *)dictionaryRepresentation {
+    return @{@"node":@(node.entryID), @"children": children.count?[children valueForKey:@"dictionaryRepresentation"]:@[]};
 }
--(IORegNode *)copy {
-    return self;
-}
--(NSSet *)flatten {
+-(NSMutableSet *)flat {
     NSMutableSet *flat = [NSMutableSet setWithObject:self];
-    for (IORegNode *child in children) [flat unionSet:child.flatten];
-    return [flat copy];
+    for (IORegNode *child in children) [flat unionSet:child.flat];
+    return flat;
+}
+-(NSString *)metaData {
+    if (node.status == terminated)
+        return [NSString stringWithFormat:@"%@\nDiscovered: %@\nTerminated: %@", node.name, [dateFormatter stringFromDate:node.added], [dateFormatter stringFromDate:node.removed]];
+    return [NSString stringWithFormat:@"%@\nDiscovered: %@", node.name, [dateFormatter stringFromDate:node.added]];
+}
+-(void)walk:(io_iterator_t)iterator {
+    io_registry_entry_t object;
+    while ((object = IOIteratorNext(iterator))) {
+        bool stop = false;
+        IOReg *obj = [node.document add:object];
+        for (IORegNode *child in children)
+            if (child.node == obj) {
+                stop = true;
+                break;
+            }
+        if (stop) continue;
+        IORegNode *child = [IORegNode create:obj on:self];
+        if (IORegistryIteratorEnterEntry(iterator) == KERN_SUCCESS) [child walk:iterator];
+    }
+    IORegistryIteratorExitEntry(iterator);
+}
+-(void)mutate {
+    io_iterator_t it;
+    io_registry_entry_t entry = IOServiceGetMatchingService(kIOMasterPortDefault, IORegistryEntryIDMatching(node.entryID));
+    IORegistryEntryCreateIterator(entry, [plane cStringUsingEncoding:NSMacOSRomanStringEncoding], 0, &it);
+    [self walk:it];
+    IOObjectRelease(it);
 }
 
 @end
 
 @implementation IORegRoot
-@synthesize plane;
-@synthesize flat;
-@synthesize pleated;
+static NSPredicate *filterBlock;
+
++(void)initialize {
+    filterBlock = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings){
+        evaluatedObject = [evaluatedObject node];
+        NSString *value = [bindings objectForKey:@"value"];
+        for (NSString *key in [bindings objectForKey:@"keys"]) {
+            if ([key isEqualToString:@"name"] && [[evaluatedObject name] rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound)
+                return true;
+            else if ([key isEqualToString:@"bundle"] && [[evaluatedObject bundle] rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound)
+                return true;
+            else if ([key isEqualToString:@"class"] && [[evaluatedObject ioclass] rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound)
+                return true;
+            else if ([key isEqualToString:@"inheritance"] && [[evaluatedObject classChain] containsRange:value])
+                return true;
+            else if ([key isEqualToString:@"keys"] && [[[evaluatedObject properties] valueForKey:@"key"] containsRange:value])
+                return true;
+            else if ([key isEqualToString:@"values"] && [[[evaluatedObject properties] valueForKey:@"value"] containsRange:value])
+                return true;
+            else if ([key isEqualToString:@"state"]) {
+                if ([evaluatedObject isActive] && [@"Active" rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound) return true;
+                else if ([evaluatedObject isRegistered] && [@"Registered" rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound) return true;
+                else if ([evaluatedObject isMatched] && [@"Matched" rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound) return true;
+            }
+        }
+        return false;
+    }];
+}
 
 +(IORegRoot *)root:(IOReg *)root on:(NSString *)plane{
     IORegRoot *temp = [IORegRoot new];
     temp.node = root;
     temp.plane = plane;
-    temp.children = [NSMutableArray array];
-    temp.pleated = temp.children;
     return temp;
 }
--(NSSet *)flatten {
-    if (!flat) {
-        NSMutableSet *temp = [NSMutableSet setWithObject:self];
-        for (IORegNode *child in pleated) [temp unionSet:child.flatten];
-        flat = [temp copy];
++(IORegRoot *)createWithDictionary:(NSDictionary *)dictionary on:(NSMapTable *)table {
+    IORegRoot *temp = [IORegRoot new];
+    temp.node = (__bridge IOReg *)(NSMapGet(table, (void *)[[dictionary objectForKey:@"root"] longLongValue]));
+    temp.plane = [dictionary objectForKey:@"plane"];
+    if ([[dictionary objectForKey:@"children"] count]) {
+        temp.children = [NSMutableArray array];
+        for (NSDictionary *ioreg in [dictionary objectForKey:@"children"])
+            [temp.children addObject:[IORegNode createWithDictionary:ioreg on:temp]];
     }
+    return temp;
+}
+-(void)filter:(NSString *)filter {
+    if (filter.length) {
+        NSDictionary *bindings = @{@"value":filter, @"keys":[[[NSUserDefaults.standardUserDefaults dictionaryForKey:@"find"] keysOfEntriesPassingTest:^BOOL(id key, id obj, BOOL *stop){
+            return [obj boolValue] && ![key isEqualToString:@"property"] && ![key isEqualToString:@"showAll"];
+        }] allObjects]};
+        self.children = [[[self.flat objectsPassingTest:^BOOL(id obj, BOOL *stop){
+            return [filterBlock evaluateWithObject:obj substitutionVariables:bindings];
+        }] allObjects] mutableCopy];
+    }
+    else if (_pleated) self.children = _pleated;
+}
+-(NSDictionary *)dictionaryRepresentation {
+    return @{@"root":@(self.node.entryID), @"plane":self.plane, @"children":[self.children valueForKey:@"dictionaryRepresentation"]};
+}
+-(NSMutableArray *)children{
+    if (![super children]) {
+        _pleated = self.children = [NSMutableArray array];
+        [self mutate];
+    }
+    return [super children];
+}
+-(NSMutableSet *)flat {//TODO: cache for speed, invalidate on notification
+    NSMutableSet *flat = [NSMutableSet setWithObject:self];
+    for (IORegNode *child in _pleated) [flat unionSet:child.flat];
     return flat;
+}
+-(bool)isLoaded {
+    return (_pleated);
+}
+-(void)mutate {
+    io_iterator_t it;
+    IORegistryCreateIterator(kIOMasterPortDefault, [self.plane cStringUsingEncoding:NSMacOSRomanStringEncoding], 0, &it);
+    [self walk:it];
+    IOObjectRelease(it);
 }
 
 @end
@@ -190,7 +366,8 @@ static NSUInteger dataType;
 static NSUInteger strType;
 static NSUInteger numType;
 static NSUInteger dateType;
-@synthesize type;
+static NSDictionary *gray;
+static NSDictionary *fixedPitch;
 @synthesize key;
 @synthesize children;
 
@@ -202,91 +379,93 @@ static NSUInteger dateType;
     strType = CFStringGetTypeID();
     numType = CFNumberGetTypeID();
     dateType = CFDateGetTypeID();
-}
-
-+(NSArray *)numberRange:(NSRange)range {
-    NSUInteger i = range.location, j = NSMaxRange(range);
-    NSMutableArray *temp = [NSMutableArray array];
-    while (i < j) [temp addObject:[NSNumber numberWithLong:i++]];
-    return [temp copy];
-}
-
-+(NSArray *)createWithDictionary:(NSDictionary *)dictionary {//FIXME: unpack dicts dynamically?
-    NSMutableArray *temp = [NSMutableArray array];
-    for (NSString *key in dictionary) {
-        id value = [dictionary objectForKey:key];
-        NSUInteger type = CFGetTypeID((__bridge CFTypeRef)value);
-        if (type == dictType)
-            [temp addObject:[self create:key value:nil type:type children:[self createWithDictionary:value]]];
-        else if (type == arrType)
-            [temp addObject:[self create:key value:nil type:type children:[self createWithDictionary:[NSDictionary dictionaryWithObjects:value forKeys:[self numberRange:NSMakeRange(0, [value count])]]]]];
-        else [temp addObject:[self create:key value:value type:type children:nil]];
-    }
-    return [temp copy];
-}
-
-+(IORegProperty *)create:(NSString *)key value:(id)value type:(NSUInteger)type children:(NSArray *)children{
-    IORegProperty *temp = [IORegProperty new];
-    temp.key = key;
-    temp.type = type;
-    temp.value = value;
-    temp.children = children;
-    return temp;
-}
--(void)setValue:(id)value {
-    _value = value;
-}
--(id)value {
-    if (type == boolType) return [_value boolValue]?@"True":@"False";
-    else if (type == dictType || type == arrType)
-        return [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%ld value%s", children.count, children.count==1?"":"s"] attributes:@{NSForegroundColorAttributeName:[NSColor grayColor]}];
-    else if (type == numType)
-        return [NSString stringWithFormat:@"0x%lx", [_value longValue]];
-    else if (type == dataType) return [_value attributedDescription];
-    else return [_value description];
-}
--(NSString *)typeString{
-    if (type == boolType) return @"Boolean";
-    else if (type == dictType) return @"Dictionary";
-    else if (type == strType) return @"String";
-    else if (type == arrType) return @"Array";
-    else if (type == numType) return @"Number";
-    else if (type == dataType) return @"Data";
-    else if (type == dateType) return @"Date";
-    else return @"Unknown";
-}
-
-@end
-
-@implementation NSData (DescriptionAdditions)
-static NSDictionary *fixedPitch;
-+(void)initialize {
+    gray = @{NSForegroundColorAttributeName:[NSColor grayColor]};
     fixedPitch = @{NSFontAttributeName:[NSFont userFixedPitchFontOfSize:NSFont.smallSystemFontSize-1]};
 }
 
--(bool)isTextual{
-    NSUInteger i = 0, j = self.length;
-    if (j < 3) return false;
-    const char *bytes = self.bytes;
-    while (i < j)
-        if (bytes[i] >= 0x80 || (bytes[i] < 0x20 && bytes[i] != 0)) return false;
-        else i++;
-    return true;
++(NSArray *)createWithDictionary:(NSDictionary *)dictionary {
+    NSMutableArray *properties = [NSMutableArray array];
+    for (NSString *key in dictionary)
+        [properties addObject:[IORegProperty create:[dictionary objectForKey:key] forKey:key]];
+    return [properties copy];
 }
--(NSString *)groupedDescription:(NSUInteger)group{
-    NSUInteger i = 0, j = self.length, k = j*(group+1)+1;
-    char description[k];
-    description[0] = '<';
-    while (i < j) sprintf(description+(i*(group+1))+1, "%02x ", ((UInt8 *)self.bytes)[i++]);
-    description[k-1] = '>';
-    return [[NSString alloc] initWithBytes:description length:k encoding:NSASCIIStringEncoding];
++(IORegProperty *)create:(id)value forKey:(id)key {//TODO: unpack dicts dynamically?
+    IORegProperty *temp = [IORegProperty new];
+    temp.key = [key copy];
+    temp->_type = CFGetTypeID((__bridge CFTypeRef)value);
+    if (temp->_type == dictType && [value count]) {
+        NSMutableArray *array = [NSMutableArray array];
+        for (NSString *str in value)
+            [array addObject:[IORegProperty create:[value objectForKey:str] forKey:str]];
+        temp.children = [array copy];
+    }
+    else if (temp->_type == arrType && [value count]) {
+        NSMutableArray *array = [NSMutableArray array];
+        NSUInteger i = 0;
+        for (id obj in value)
+            [array addObject:[IORegProperty create:obj forKey:@(i++)]];
+        temp.children = [array copy];
+    }
+    else temp->_value = value;
+    if (temp->_type == dataType) temp->_subtype = [temp->_value isTextual] ? [[temp->_value macromanStrings] count] : -1;
+    else if (temp->_type == numType) temp->_subtype = [temp->_value nSize];
+    return temp;
 }
 
--(NSAttributedString *)attributedDescription {
-    if (self.isTextual)
-        return [NSString stringWithFormat:@"<\"%@\">", [[[[[NSString alloc] initWithData:self encoding:NSASCIIStringEncoding] stringByTrimmingCharactersInSet:NSCharacterSet.controlCharacterSet] componentsSeparatedByString:@"\0"] componentsJoinedByString:@"\",\""]];
-    else
-        return [[NSAttributedString alloc] initWithString:[self groupedDescription:2] attributes:fixedPitch];
+-(NSDictionary *)dictionaryRepresentation {
+    if (_type == dictType)
+        return children.count?[NSDictionary dictionaryWithObjects:[children valueForKey:@"dictionaryRepresentation"] forKeys:[children valueForKey:@"key"]]:@{};
+    else if (_type == arrType)
+        return children.count?[children valueForKey:@"dictionaryRepresentation"]:@[];
+    return _value;
+}
+-(id)description {
+    if (_type == boolType) return [_value boolValue]?@"True":@"False";
+    else if (_type == dictType || _type == arrType)
+        return [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%ld value%s", children.count, children.count==1?"":"s"] attributes:gray];
+    else if (_type == numType)
+        return [NSString stringWithFormat:@"0x%llx", [_value longLongValue]];
+    else if (_type == dataType) {
+        if (_subtype > 0) return [NSString stringWithFormat:@"<\"%@\">", [[_value macromanStrings] componentsJoinedByString:@"\",\""]];
+        else return [[NSAttributedString alloc] initWithString:[_value groupedDescription:2] attributes:fixedPitch];
+    }
+    else return [_value description];
+}
+-(NSString *)briefDescription {
+    if (_type == boolType) return [_value boolValue]?@"True":@"False";
+    else if (_type == dictType || _type == arrType)
+        return [NSString stringWithFormat:@"%@ of %ld value%s", self.typeString, children.count, children.count==1?"":"s"];
+    else if (_type == numType)
+        return [NSString stringWithFormat:@"0x%llx", [_value longLongValue]];
+    else if (_type == dataType)
+        return [NSString stringWithFormat:@"Data of %ld byte%s", [_value length], [_value length]==1?"":"s"];
+    else return [_value description];
+}
+-(NSString *)metaData {
+    if (_type == strType) return @"NUL-terminated ASCII string";
+    else if (_type == dataType) {
+        if (_subtype == 1) return [NSString stringWithFormat:@"%ld bytes interpreted as a string in MacRoman encoding", [_value length]];
+        else if (_subtype > 1) return [NSString stringWithFormat:@"%ld bytes interpreted as %ld strings in MacRoman encoding", [_value length], _subtype];
+        else return [NSString stringWithFormat:@"%ld byte%s autoformatted as hexadecimal bytes in host byte order", [_value length], [_value length]==1?"":"s"];
+    }
+    else if (_type == numType) return [NSString stringWithFormat:@"%ld-byte number interpreted in native byte order", _subtype];
+    else return nil;
+}
+-(NSInteger)type {
+    return _type;
+}
+-(NSInteger)subtype {
+    return _subtype;
+}
+-(NSString *)typeString{
+    if (_type == boolType) return @"Boolean";
+    else if (_type == dictType) return @"Dictionary";
+    else if (_type == strType) return @"String";
+    else if (_type == arrType) return @"Array";
+    else if (_type == numType) return @"Number";
+    else if (_type == dataType) return @"Data";
+    else if (_type == dateType) return @"Date";
+    else return @"Unknown";
 }
 
 @end

@@ -7,12 +7,20 @@
 //
 
 #import "AppDelegate.h"
+#import "IOReg.h"
+#import "Document.h"
 
 @implementation AppDelegate
 
 -(void)awakeFromNib {
-
+    [NSUserDefaults.standardUserDefaults registerDefaults:@{@"find":@{@"showAll":@(NO), @"name":@(YES), @"bundle":@(NO), @"inheritance":@(NO), @"class":@(NO), @"keys":@(NO), @"values":@(NO), @"state":@(NO), @"property":@""}}];
+    [NSUserDefaults.standardUserDefaults addObserver:self forKeyPath:@"find" options:0 context:0];
 }
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    for (Document *document in [NSDocumentController.sharedDocumentController documents])
+        [document filterTree:document.findView];
+}
+
 -(IBAction)copy:(id)sender{
     NSResponder *obj = [[NSApp keyWindow] firstResponder];
     if ([obj isKindOfClass:NSTableView.class]) {

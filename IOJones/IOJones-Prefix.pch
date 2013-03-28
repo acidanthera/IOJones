@@ -6,17 +6,18 @@
     #import <Cocoa/Cocoa.h>
 #endif
 
+#define kIOJonesDomain @"IOJonesDomain"
+#define kIORegFileType @"com.apple.ioregistryexplorer.archive"
+#define kIOJonesFileType @"net.sourceforge.iojones"
+#define kPlistFileType @"com.apple.property-list"
+#define kFileError 1
+
 #define assignWithNotice(x,y,z) [x willChangeValueForKey:@""#y];y=z;[x didChangeValueForKey:@""#y];
 #define muteWithNotice(x,y,z) [x willChangeValueForKey:@""#y];z;[x didChangeValueForKey:@""#y];
 #define delayWithNotice(x,y,z) [x performSelector:@selector(willChangeValueForKey:) withObject:@""#y afterDelay:z];[x performSelector:@selector(didChangeValueForKey:) withObject:@""#y afterDelay:z];
+#define SHOWFILE(x) [[NSWorkspace sharedWorkspace] selectFile:x inFileViewerRootedAtPath:x.stringByDeletingLastPathComponent]
 NS_INLINE NSError* ModalError(NSError *error){
     if (error)
         [[NSAlert alertWithError:error] runModal];
     return error;
-}
-NS_INLINE void SplitView(NSSplitView *splitView){
-    NSArray *rects = [NSUserDefaults.standardUserDefaults stringArrayForKey:[@"NSSplitView Subview Frames " stringByAppendingString:splitView.autosaveName]];
-    if (!rects) return;
-    NSRect rect = NSRectFromString([rects objectAtIndex:0]);
-    [splitView setPosition:splitView.isVertical?NSMaxX(rect):NSMaxY(rect) ofDividerAtIndex:0];
 }
