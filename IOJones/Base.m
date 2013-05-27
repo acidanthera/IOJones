@@ -102,6 +102,22 @@
 
 @end
 
+@implementation NSAttributedString (ComparisonAdditions)
+
+-(NSComparisonResult)compare:(NSString *)comparison {
+    return [self.string compare:comparison];
+}
+
+@end
+
+@implementation NSString (ComparisonAdditions)
+
+-(NSComparisonResult)compare:(id)string {
+    return [self compare:([string isKindOfClass:[NSString class]])?string:[string string] options:0 range:NSMakeRange(0, [string length])];
+}
+
+@end
+
 @implementation NSMutableDictionarySet
 
 +(NSMutableDictionarySet *)createWithDictionary:(NSDictionary *)dictionary{
