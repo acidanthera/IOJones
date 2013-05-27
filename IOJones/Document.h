@@ -35,6 +35,7 @@
 @property (nonatomic, getter = isOutline) bool outline;
 @property NSIndexSet *selectedPlanes;
 @property NSArray *selectedObjects;
+@property NSString *systemName;
 @property NSString *hostname;
 @property NSDate *timestamp;
 @property NSArray *allPlanes;

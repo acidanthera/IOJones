@@ -19,6 +19,7 @@
 @synthesize propertyView;
 @synthesize pathWindow;
 @synthesize pathView;
+@synthesize systemName;
 @synthesize hostname;
 @synthesize timestamp;
 @synthesize allBundles;
@@ -69,7 +70,7 @@
     NSError *err;
     NSData *data;
     if ([typeName isEqualToString:kIOJonesFileType])
-        data = [NSPropertyListSerialization dataWithPropertyList:@{@"system":@{@"hostname":hostname, @"timestamp":timestamp},@"classes":allClasses.dictionaryRepresentation, @"bundles":allBundles.dictionaryRepresentation, @"objects":[NSAllMapTableValues(allObjects) valueForKey:@"dictionaryRepresentation"], @"planes": [allPlanes valueForKey:@"dictionaryRepresentation"]} format:NSPropertyListBinaryFormat_v1_0 options:0 error:&err];
+        data = [NSPropertyListSerialization dataWithPropertyList:@{@"system":@{@"hostname":hostname, @"systemName":systemName, @"timestamp":timestamp},@"classes":allClasses.dictionaryRepresentation, @"bundles":allBundles.dictionaryRepresentation, @"objects":[NSAllMapTableValues(allObjects) valueForKey:@"dictionaryRepresentation"], @"planes": [allPlanes valueForKey:@"dictionaryRepresentation"]} format:NSPropertyListBinaryFormat_v1_0 options:0 error:&err];
     else //TODO: add other document support
         err = [NSError errorWithDomain:kIOJonesDomain code:kFileError userInfo:@{NSLocalizedDescriptionKey:@"Filetype Error", NSLocalizedFailureReasonErrorKey:[NSString stringWithFormat:@"Unknown Filetype %@", typeName]}];
     if (err && outError != NULL)
@@ -89,6 +90,7 @@
         allClasses = [NSMutableDictionarySet createWithDictionary:[dict objectForKey:@"classes"]];
         allBundles = [NSMutableDictionarySet createWithDictionary:[dict objectForKey:@"bundles"]];
         hostname = [[dict objectForKey:@"system"] objectForKey:@"hostname"];
+        systemName = [[dict objectForKey:@"system"] objectForKey:@"systemName"]?:[[[[dict objectForKey:@"system"] objectForKey:@"hostname"] componentsSeparatedByString:@" ("] objectAtIndex:0];
         timestamp = [[dict objectForKey:@"system"] objectForKey:@"timestamp"];
         for (NSDictionary *ioreg in [dict objectForKey:@"objects"]) [self addDict:ioreg];
         NSMutableArray *temp = [NSMutableArray array];
@@ -109,7 +111,7 @@
     NSString *nsroot = @"OSObject";
     [allClasses setObject:nsroot forKey:nsroot];
     [allBundles setObject:@"com.apple.kernel" forKey:nsroot];
-    hostname = [NSString stringWithFormat:@"%@ (%@)", [IOReg systemName], [IOReg systemType]];
+    hostname = [NSString stringWithFormat:@"%@ (%@)", (systemName = IOReg systemName]), [IOReg systemType]];
     IOReg *root = [self add:IORegistryGetRootEntry(kIOMasterPortDefault)];
     NSMutableArray *temp = [NSMutableArray array];
     for (NSString *plane in [IOReg systemPlanes])
@@ -364,7 +366,7 @@ void serviceNotification(void *refCon, io_iterator_t iterator) {
     return _selectedObjects;
 }
 -(NSString *)title {
-    return [NSString stringWithFormat:@"%@ - %@ - %@", [IOReg systemName], self.selectedPlane.plane, [[[self.selectedItem representedObject] node] currentName]];
+    return [NSString stringWithFormat:@"%@ - %@ - %@", systemName, self.selectedPlane.plane, self.selectedItem?[[[self.selectedItem representedObject] node] currentName]:@"(no object selected)"];
 }
 -(NSString *)drawerLabel {
     if ([[findView stringValue] length]) return [NSString stringWithFormat:@"%ld object%s matched", self.selectedPlane.children.count, self.selectedPlane.children.count==1?"":"s"];
