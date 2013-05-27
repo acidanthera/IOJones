@@ -122,10 +122,16 @@
 
 +(NSMutableDictionarySet *)createWithDictionary:(NSDictionary *)dictionary{
     NSMutableDictionarySet *temp = [NSMutableDictionarySet new];
-    temp->_dict = [NSMutableDictionary dictionary];
-    temp->_set = [NSMutableSet set];
     for (NSString *key in dictionary) [temp setObject:[dictionary objectForKey:key] forKey:key];
     return temp;
+}
+-(id)init {
+    self = [super init];
+    if (self) {
+        _dict = [NSMutableDictionary dictionary];
+        _set = [NSMutableSet set];
+    }
+    return self;
 }
 
 -(NSDictionary *)dictionaryRepresentation {
