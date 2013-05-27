@@ -12,6 +12,7 @@
 @interface Document : NSDocument <NSOutlineViewDelegate> {
     @private
     bool _drawer;
+    bool _hiding;
     NSIndexSet *_selectedPlanes;
     NSArray *_selectedObjects;
     IONotificationPortRef _port;
@@ -27,6 +28,7 @@
 @property (assign) IBOutlet NSWindow *pathWindow;
 @property (assign) IBOutlet NSTextField *pathView;
 @property bool drawer;
+@property bool hiding;
 @property (readonly) IORegRoot *selectedPlane;
 @property (readonly) NSString *title;
 @property (readonly) NSString *drawerLabel;

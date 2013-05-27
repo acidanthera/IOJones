@@ -334,6 +334,14 @@ void serviceNotification(void *refCon, io_iterator_t iterator) {
 }
 
 #pragma mark Nonatomic Properties
+-(void)setHiding:(bool)hiding {
+    _hiding = hiding;
+    IORegRoot *plane = self.selectedPlane;
+    muteWithNotice(plane, children,)
+}
+-(bool)hiding {
+    return _hiding;
+}
 -(void)setScrollPosition:(NSRect)scrollPosition {
     if (treeView.window)
         [treeView scrollRectToVisible:scrollPosition];
