@@ -29,8 +29,8 @@
 }
 -(bool)containsRange:(NSString *)string {
     for (NSString *item in self)
-        if ([item rangeOfString:string options:NSCaseInsensitiveSearch].location != NSNotFound)
-            return true;
+        if ([item isKindOfClass:NSString.class] && [item rangeOfString:string options:NSCaseInsensitiveSearch].location != NSNotFound)
+        return true;
     return false;
 }
 
