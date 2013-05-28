@@ -93,7 +93,9 @@ enum iostatus {
 @property (readonly) NSInteger type;
 @property (readonly) NSInteger subtype;
 @property (readonly) NSString *typeString;
-@property (readonly) id description;
+@property (readonly) NSString *description;
+@property (readonly) NSColor *descriptionColor;
+@property (readonly) NSFont *descriptionFont;
 @property (readonly) NSString *briefDescription;
 @property (readonly) NSString *metaData;
 @property (readonly) NSDictionary *dictionaryRepresentation;

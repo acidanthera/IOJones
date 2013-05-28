@@ -398,8 +398,6 @@ static NSUInteger dataType;
 static NSUInteger strType;
 static NSUInteger numType;
 static NSUInteger dateType;
-static NSDictionary *gray;
-static NSDictionary *fixedPitch;
 @synthesize key;
 @synthesize children;
 
@@ -411,8 +409,6 @@ static NSDictionary *fixedPitch;
     strType = CFStringGetTypeID();
     numType = CFNumberGetTypeID();
     dateType = CFDateGetTypeID();
-    gray = @{NSForegroundColorAttributeName:[NSColor grayColor]};
-    fixedPitch = @{NSFontAttributeName:[NSFont userFixedPitchFontOfSize:NSFont.smallSystemFontSize-1]};
 }
 
 +(NSArray *)createWithDictionary:(NSDictionary *)dictionary {
@@ -451,17 +447,23 @@ static NSDictionary *fixedPitch;
         return children.count?[children valueForKey:@"dictionaryRepresentation"]:@[];
     return _value;
 }
--(id)description {
+-(NSString *)description {
     if (_type == boolType) return [_value boolValue]?@"True":@"False";
     else if (_type == dictType || _type == arrType)
-        return [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%ld value%s", children.count, children.count==1?"":"s"] attributes:gray];
+        return [NSString stringWithFormat:@"%ld value%s", children.count, children.count==1?"":"s"];
     else if (_type == numType)
         return [NSString stringWithFormat:@"0x%llx", [_value longLongValue]];
     else if (_type == dataType) {
         if (_subtype > 0) return [NSString stringWithFormat:@"<\"%@\">", [[_value macromanStrings] componentsJoinedByString:@"\",\""]];
-        else return [[NSAttributedString alloc] initWithString:[_value groupedDescription:2] attributes:fixedPitch];
+        else return [_value groupedDescription:2];
     }
     else return [_value description];
+}
+-(NSColor *)descriptionColor {
+    return _type == dictType || _type == arrType?NSColor.grayColor:NSColor.blackColor;
+}
+-(NSFont *)descriptionFont {
+    return _type == dataType && _subtype <= 0?[NSFont userFixedPitchFontOfSize:NSFont.smallSystemFontSize-1]:[NSFont systemFontOfSize:NSFont.smallSystemFontSize];
 }
 -(NSString *)briefDescription {
     if (_type == boolType) return [_value boolValue]?@"True":@"False";
