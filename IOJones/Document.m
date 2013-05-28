@@ -160,10 +160,14 @@
     [self performSelector:@selector(coalesceFilter:) withObject:sender afterDelay:0.5];
 }
 -(IBAction)coalesceFilter:(id)sender {
+    NSString *path = [[[[self.selectedItem representedObject] node] sortedPaths] objectAtIndex:0];
     [self.selectedPlane filter:[sender stringValue]];
     if (![[sender stringValue] length])
         [self performSelector:@selector(expandTree:) withObject:nil afterDelay:0];
+    else [treeView performSelector:@selector(expandItem:) withObject:self.selectedRootNode afterDelay:0];
     [self showProperty:nil];
+    muteWithNotice(self, title,)
+    if (path) [self performSelector:@selector(revealPath:) withObject:path afterDelay:0];
 }
 -(IBAction)showProperty:(id)sender {
     if (!_drawer) return;
@@ -214,16 +218,14 @@
 }
 -(IBAction)collapseSelection:(id)sender {
     NSIndexPath *path = [[treeView itemAtRow:treeView.selectedRow] indexPath];
-    NSTreeNode *node = [[treeView itemAtRow:0] parentNode];
+    NSTreeNode *node = [self.selectedRootNode parentNode];
     NSUInteger i = 0;
     [treeView collapseItem:nil collapseChildren:true];
     while (i < path.length) {
         node = [node.childNodes objectAtIndex:[path indexAtPosition:i++]];
         [treeView expandItem:node];
     }
-    i = [treeView rowForItem:node];
-    [treeView selectRowIndexes:[NSIndexSet indexSetWithIndex:i] byExtendingSelection:false];
-    [treeView scrollRowToVisible:i];
+    [self revealItem:node];
 }
 -(IBAction)nextPath:(id)sender {
     //FIXME: same object, but below
@@ -392,6 +394,9 @@ void serviceNotification(void *refCon, io_iterator_t iterator) {
 -(IORegRoot *)selectedPlane {
     return [allPlanes objectAtIndex:_selectedPlanes.firstIndex];
 }
+-(NSTreeNode *)selectedRootNode {
+    return (treeView.window)?[treeView itemAtRow:0]:[[browseView loadedCellAtRow:0 column:0] representedObject];
+}
 -(void)setUpdating:(bool)updating {
     
 }
@@ -412,7 +417,7 @@ void serviceNotification(void *refCon, io_iterator_t iterator) {
 #pragma mark Traversal
 -(void)revealPath:(NSString *)path {
     self.selectedPlanes = [NSIndexSet indexSetWithIndex:[allPlanes indexOfObjectIdenticalTo:[self rootForPath:path]]];
-    [self performSelector:@selector(revealItem:) withObject:[self find:[[self nodeForPath:path] node] on:(treeView.window)?[treeView itemAtRow:0]:[[browseView loadedCellAtRow:0 column:0] representedObject]] afterDelay:0];
+    [self performSelector:@selector(revealItem:) withObject:[self find:[[self nodeForPath:path] node] on:self.selectedRootNode] afterDelay:0];
 }
 -(void)revealItem:(NSTreeNode *)item {
     if (treeView.window) {
