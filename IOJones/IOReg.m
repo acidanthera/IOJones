@@ -313,22 +313,31 @@ static NSPredicate *filterBlock;
         evaluatedObject = [evaluatedObject node];
         NSString *value = [bindings objectForKey:@"value"];
         for (NSString *key in [bindings objectForKey:@"keys"]) {
-            if ([key isEqualToString:@"name"] && [[evaluatedObject name] rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound)
-                return true;
-            else if ([key isEqualToString:@"bundle"] && [[evaluatedObject bundle] rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound)
-                return true;
-            else if ([key isEqualToString:@"class"] && [[evaluatedObject ioclass] rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound)
-                return true;
-            else if ([key isEqualToString:@"inheritance"] && [[evaluatedObject classChain] containsRange:value])
-                return true;
-            else if ([key isEqualToString:@"keys"] && [[[evaluatedObject properties] valueForKey:@"key"] containsRange:value])
-                return true;
-            else if ([key isEqualToString:@"values"] && [[[evaluatedObject properties] valueForKey:@"value"] containsRange:value])
-                return true;
+            if ([key isEqualToString:@"name"]) {
+                if ([[evaluatedObject name] rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound)
+                    return true;}
+            else if ([key isEqualToString:@"bundle"]) {
+                if ([[evaluatedObject bundle] rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound)
+                    return true;}
+                else if ([key isEqualToString:@"class"]) {
+                    if ([[evaluatedObject ioclass] rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound)
+                        return true;}
+                else if ([key isEqualToString:@"inheritance"]) {
+                    if ([[evaluatedObject classChain] containsRange:value])
+                return true;}
+                else if ([key isEqualToString:@"keys"]) {
+                    if ([[[evaluatedObject properties] valueForKey:@"key"] containsRange:value])
+                return true;}
+                else if ([key isEqualToString:@"values"]) {
+                    if ([[[evaluatedObject properties] valueForKey:@"value"] containsRange:value])
+                   return true;}
             else if ([key isEqualToString:@"state"]) {
-                if ([evaluatedObject isActive] && [@"Active" rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound) return true;
-                else if ([evaluatedObject isRegistered] && [@"Registered" rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound) return true;
-                else if ([evaluatedObject isMatched] && [@"Matched" rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound) return true;
+                if ([evaluatedObject isActive]) {
+                    if ([@"Active" rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound) return true;}
+                else if ([evaluatedObject isRegistered]) {
+                    if ([@"Registered" rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound) return true;}
+                else if ([evaluatedObject isMatched]) {
+                    if ([@"Matched" rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound) return true;}
             }
         }
         return false;
