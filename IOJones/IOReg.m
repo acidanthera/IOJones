@@ -208,6 +208,7 @@ static NSDictionary *green;
 
 @implementation IORegNode
 static NSDateFormatter *dateFormatter;
+static NSPredicate *hideBlock;
 
 @synthesize parent;
 @synthesize node;
@@ -217,6 +218,9 @@ static NSDateFormatter *dateFormatter;
     dateFormatter = [NSDateFormatter new];
     [dateFormatter setDateStyle:NSDateFormatterShortStyle];
     [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
+    hideBlock = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings){
+        return [[evaluatedObject node] status] != terminated;
+    }];
 }
 
 +(IORegNode *)create:(IORegObj *)node on:(IORegNode *)parent{
@@ -247,7 +251,9 @@ static NSDateFormatter *dateFormatter;
 -(IORegObj *)node {
     return self->node;
 }
-
+-(NSMutableArray *)children {
+    return node.document.hiding?[[children filteredArrayUsingPredicate:hideBlock] mutableCopy]:children;
+}
 -(NSDictionary *)dictionaryRepresentation {
     return @{@"node":@(node.entryID), @"children": children.count?[children valueForKey:@"dictionaryRepresentation"]:@[]};
 }

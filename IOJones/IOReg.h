@@ -57,7 +57,7 @@ enum iostatus {
 
 @property (weak) IORegNode *parent;
 @property IORegObj *node;
-@property NSMutableArray *children;
+@property (nonatomic) NSMutableArray *children;
 @property NSString *plane;
 @property (readonly) NSIndexPath *indexPath;
 @property (readonly) NSString *metaData;
