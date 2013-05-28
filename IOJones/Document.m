@@ -367,6 +367,7 @@ void serviceNotification(void *refCon, io_iterator_t iterator) {
     return _drawer;
 }
 -(void)setSelectedPlanes:(NSIndexSet *)selectedPlanes{
+    if ([selectedPlanes isEqualToIndexSet:_selectedPlanes]) return;
     [self filterTree:findView];
     _selectedPlanes = selectedPlanes;
     muteWithNotice(self, title,)
