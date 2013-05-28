@@ -6,7 +6,7 @@
 //  Licensed under GPLv3, full text at http://www.gnu.org/licenses/gpl-3.0.txt
 //
 @class IORegRoot;
-@class IOReg;
+@class IORegObj;
 @class NSMutableDictionarySet;
 
 @interface Document : NSDocument <NSOutlineViewDelegate> {
@@ -67,6 +67,6 @@
 -(IBAction)swapViews:(id)sender;
 -(IBAction)removeTerminated:(id)sender;
 
--(IOReg *)add:(io_registry_entry_t)object;
+-(IORegObj *)addObject:(io_registry_entry_t)object;
 
 @end

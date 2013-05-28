@@ -41,8 +41,8 @@ enum iostatus {
 @property NSArray *properties;
 @property NSDictionary *planes;
 
-+(IOReg *)create:(io_registry_entry_t)entry for:(Document *)document;
-+(IOReg *)createWithDictionary:(NSDictionary *)dictionary for:(Document *)document;
++(IORegObj *)create:(io_registry_entry_t)entry for:(Document *)document;
++(IORegObj *)createWithDictionary:(NSDictionary *)dictionary for:(Document *)document;
 +(NSArray *)systemPlanes;
 +(NSString *)systemName;
 +(NSString *)systemType;
@@ -52,14 +52,14 @@ enum iostatus {
 @interface IORegNode : NSObject
 
 @property (weak) IORegNode *parent;
-@property IOReg *node;
+@property IORegObj *node;
 @property NSMutableArray *children;
 @property NSString *plane;
 @property (readonly) NSString *metaData;
 @property (readonly) NSMutableSet *flat;
 @property (readonly) NSDictionary *dictionaryRepresentation;
 
-+(IORegNode *)create:(IOReg *)node on:(IORegNode *)parent;
++(IORegNode *)create:(IORegObj *)node on:(IORegNode *)parent;
 +(IORegNode *)createWithDictionary:(NSDictionary *)dictionary on:(IORegNode *)parent;
 -(void)mutate;
 
@@ -70,7 +70,7 @@ enum iostatus {
     NSMutableArray *_pleated;
 }
 @property (readonly) bool isLoaded;
-+(IORegRoot *)root:(IOReg *)root on:(NSString *)plane;
++(IORegRoot *)root:(IORegObj *)root on:(NSString *)plane;
 +(IORegRoot *)createWithDictionary:(NSDictionary *)dictionary on:(NSMapTable *)table;
 -(void)filter:(NSString *)filter;
 

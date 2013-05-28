@@ -12,7 +12,7 @@
 #import "IOKitLibPrivate.h"
 #include <mach/mach.h>
 
-@implementation IOReg
+@implementation IORegObj
 static NSArray *systemPlanes;
 static NSString *systemName;
 static NSString *systemType;
@@ -62,8 +62,8 @@ static NSDictionary *green;
     return systemType;
 }
 
-+(IOReg *)create:(io_registry_entry_t)entry for:(Document *)document{
-    IOReg *temp = [IOReg new];
++(IORegObj *)create:(io_registry_entry_t)entry for:(Document *)document{
+    IORegObj *temp = [IORegObj new];
     temp.added = [NSDate date];
     temp.document = document;
     io_name_t globalname = {};
@@ -100,8 +100,8 @@ static NSDictionary *green;
     IOObjectRelease(entry);
     return temp;
 }
-+(IOReg *)createWithDictionary:(NSDictionary *)dictionary for:(Document *)document {
-    IOReg *temp = [IOReg new];
++(IORegObj *)createWithDictionary:(NSDictionary *)dictionary for:(Document *)document {
+    IORegObj *temp = [IORegObj new];
     temp.document = document;
     temp.ioclass = [dictionary objectForKey:@"class"];
     temp.added = [dictionary objectForKey:@"added"];
@@ -212,7 +212,7 @@ static NSDateFormatter *dateFormatter;
     [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
 }
 
-+(IORegNode *)create:(IOReg *)node on:(IORegNode *)parent{
++(IORegNode *)create:(IORegObj *)node on:(IORegNode *)parent{
     IORegNode *temp = [IORegNode new];
     temp.node = node;
     temp.plane = parent.plane;
@@ -225,7 +225,7 @@ static NSDateFormatter *dateFormatter;
     IORegNode *temp = [IORegNode new];
     temp.parent = parent;
     temp.plane = parent.plane;
-    temp.node = (__bridge IOReg *)(NSMapGet(parent.node.document.allObjects, (void *)[[dictionary objectForKey:@"node"] longLongValue]));
+    temp.node = (__bridge IORegObj *)(NSMapGet(parent.node.document.allObjects, (void *)[[dictionary objectForKey:@"node"] longLongValue]));
     if ([[dictionary objectForKey:@"children"] count]) {
         temp.children = [NSMutableArray array];
         for (NSDictionary *ioreg in [dictionary objectForKey:@"children"])
@@ -251,7 +251,7 @@ static NSDateFormatter *dateFormatter;
     io_registry_entry_t object;
     while ((object = IOIteratorNext(iterator))) {
         bool stop = false;
-        IOReg *obj = [node.document add:object];
+        IORegObj *obj = [node.document addObject:object];
         for (IORegNode *child in children)
             if (child.node == obj) {
                 stop = true;
@@ -303,7 +303,7 @@ static NSPredicate *filterBlock;
     }];
 }
 
-+(IORegRoot *)root:(IOReg *)root on:(NSString *)plane{
++(IORegRoot *)root:(IORegObj *)root on:(NSString *)plane{
     IORegRoot *temp = [IORegRoot new];
     temp.node = root;
     temp.plane = plane;
@@ -311,7 +311,7 @@ static NSPredicate *filterBlock;
 }
 +(IORegRoot *)createWithDictionary:(NSDictionary *)dictionary on:(NSMapTable *)table {
     IORegRoot *temp = [IORegRoot new];
-    temp.node = (__bridge IOReg *)(NSMapGet(table, (void *)[[dictionary objectForKey:@"root"] longLongValue]));
+    temp.node = (__bridge IORegObj *)(NSMapGet(table, (void *)[[dictionary objectForKey:@"root"] longLongValue]));
     temp.plane = [dictionary objectForKey:@"plane"];
     if ([[dictionary objectForKey:@"children"] count]) {
         temp.children = [NSMutableArray array];

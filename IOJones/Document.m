@@ -112,10 +112,10 @@
     NSString *nsroot = @"OSObject";
     [allClasses setObject:nsroot forKey:nsroot];
     [allBundles setObject:@"com.apple.kernel" forKey:nsroot];
-    hostname = [NSString stringWithFormat:@"%@ (%@)", (systemName = IOReg systemName]), [IOReg systemType]];
-    IOReg *root = [self add:IORegistryGetRootEntry(kIOMasterPortDefault)];
+    hostname = [NSString stringWithFormat:@"%@ (%@)", (systemName = [IORegObj systemName]), [IORegObj systemType]];
+    IORegObj *root = [self addObject:IORegistryGetRootEntry(kIOMasterPortDefault)];
     NSMutableArray *temp = [NSMutableArray array];
-    for (NSString *plane in [IOReg systemPlanes])
+    for (NSString *plane in [IORegObj systemPlanes])
         [temp addObject:[IORegRoot root:root on:plane]];
     allPlanes = [temp copy];
     [self toggleUpdates:nil];
@@ -185,7 +185,7 @@
         if (IOServiceAddMatchingNotification(_port, kIOFirstPublishNotification, IOServiceMatching(kIOServiceClass), serviceNotification, (__bridge void *)self, &_publish) != KERN_SUCCESS)
             return [self toggleUpdates:nil];
         [self service:_publish];//TODO: wipe planes?, re-initialize?
-        for (IOReg* obj in allObjects.objectEnumerator) [obj setStatus:initial];
+        for (IORegObj *obj in allObjects.objectEnumerator) [obj setStatus:initial];
         if (IOServiceAddMatchingNotification(_port, kIOTerminatedNotification, IOServiceMatching(kIOServiceClass), serviceNotification, (__bridge void *)self, &_terminate) != KERN_SUCCESS)
             return [self toggleUpdates:nil];
         [self service:_terminate];
@@ -304,7 +304,7 @@
     if (iterator == _publish) {
         array = [NSMutableArray array];
         while ((service = IOIteratorNext(iterator))) {
-            IOReg *obj = [self add:service];
+            IORegObj *obj = [self addObject:service];
             [obj setStatus:published];
             [array addObject:obj];
         }
@@ -312,10 +312,10 @@
     else if (iterator == _terminate)
         while ((service = IOIteratorNext(iterator))) {
             uint64_t entry;
-            IOReg *obj;
+            IORegObj *obj;
             IORegistryEntryGetRegistryEntryID(service, &entry);
             IOObjectRelease(service);
-            if (!(obj = (__bridge IOReg *)NSMapGet(allObjects, (void *)entry))) continue;
+            if (!(obj = (__bridge IORegObj *)NSMapGet(allObjects, (void *)entry))) continue;
             [obj setRemoved:[NSDate date]];
             muteWithNotice(obj, displayName, [obj setStatus:terminated])
         }
@@ -325,7 +325,7 @@
     NSArray *objs;
     if ((objs = [self service:iterator])) {
         NSRect scroll = self.scrollPosition;
-        for (IOReg *obj in objs) {
+        for (IORegObj *obj in objs) {
             for (NSString *path in [obj.planes.allValues valueForKey:@"path"]) {
                 if (![[self rootForPath:path] isLoaded]) continue;
                 IORegNode *node = [self nodeForPath:path];
@@ -446,7 +446,7 @@ void serviceNotification(void *refCon, io_iterator_t iterator) {
         }
     return parent;
 }
--(NSTreeNode *)find:(IOReg *)obj on:(NSTreeNode *)proxy {
+-(NSTreeNode *)find:(IORegObj *)obj on:(NSTreeNode *)proxy {
     if ([proxy.representedObject node] == obj) return proxy;
     NSTreeNode *node;
     for (NSTreeNode *child in proxy.childNodes)
@@ -456,19 +456,19 @@ void serviceNotification(void *refCon, io_iterator_t iterator) {
 }
 
 #pragma mark Functions
--(IOReg *)add:(io_registry_entry_t)object {
+-(IORegObj *)addObject:(io_registry_entry_t)object {
     UInt64 entry;
-    IOReg *temp;
+    IORegObj *temp;
     IORegistryEntryGetRegistryEntryID(object, &entry);
-    if (!(temp = (__bridge IOReg *)NSMapGet(allObjects, (void *)entry))) {
-        temp = [IOReg create:object for:self];
+    if (!(temp = (__bridge IORegObj *)NSMapGet(allObjects, (void *)entry))) {
+        temp = [IORegObj create:object for:self];
         NSMapInsertKnownAbsent(allObjects, (void *)entry, (__bridge void *)temp);
     }
     else IOObjectRelease(object);
     return temp;
 }
 - (void)addDict:(NSDictionary *)object{
-    IOReg *temp = [IOReg createWithDictionary:object for:self];
+    IORegObj *temp = [IORegObj createWithDictionary:object for:self];
     NSMapInsertKnownAbsent(allObjects, (void *)temp.entryID, (__bridge void *)temp);
 }
 
