@@ -228,10 +228,18 @@
     [self revealItem:node];
 }
 -(IBAction)nextPath:(id)sender {
-    //FIXME: same object, but below
+    NSTreeNode *node = self.selectedItem;
+    NSArray *sortedPaths = [[[[[node.representedObject node] registeredNodes] valueForKey:@"indexPath"] allObjects] sortedArrayUsingSelector:@selector(compare:)];
+    NSUInteger i = [sortedPaths indexOfObject:[node.representedObject indexPath]];
+    if (i == NSNotFound || i == sortedPaths.count-1) return;
+    [self revealItem:[[self.selectedRootNode parentNode] descendantNodeAtIndexPath:[sortedPaths objectAtIndex:++i]]];
 }
 -(IBAction)previousPath:(id)sender {
-    //FIXME: same object, but above
+    NSTreeNode *node = self.selectedItem;
+    NSArray *sortedPaths = [[[[[node.representedObject node] registeredNodes] valueForKey:@"indexPath"] allObjects] sortedArrayUsingSelector:@selector(compare:)];
+    NSUInteger i = [sortedPaths indexOfObject:[node.representedObject indexPath]];
+    if (i == NSNotFound || i == 0) return;
+    [self revealItem:[[self.selectedRootNode parentNode] descendantNodeAtIndexPath:[sortedPaths objectAtIndex:--i]]];
 }
 -(IBAction)nextPathAny:(id)sender {
     [self revealPath:[[[self.selectedItem representedObject] sortedPaths] objectAtIndex:1]];
