@@ -377,9 +377,10 @@ static NSPredicate *filterBlock;
 }
 -(NSMutableArray *)children{
     if (![super children]) {
-        _pleated = self.children = [NSMutableArray array];
+        _pleated = super.children = [NSMutableArray array];
         [self mutate];
     }
+    else if (!_pleated) _pleated = super.children;
     return [super children];
 }
 -(NSMutableSet *)flat {//TODO: cache for speed, invalidate on notification
