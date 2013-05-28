@@ -15,6 +15,7 @@
 #define assignWithNotice(x,y,z) [x willChangeValueForKey:@""#y];y=z;[x didChangeValueForKey:@""#y];
 #define muteWithNotice(x,y,z) [x willChangeValueForKey:@""#y];z;[x didChangeValueForKey:@""#y];
 #define delayWithNotice(x,y,z) [x performSelector:@selector(willChangeValueForKey:) withObject:@""#y afterDelay:z];[x performSelector:@selector(didChangeValueForKey:) withObject:@""#y afterDelay:z];
+#define removeWithNotice(x,y,z) [x willChange:NSKeyValueChangeRemoval valuesAtIndexes:[NSIndexSet indexSetWithIndex:z] forKey:@""#y];[(NSMutableArray *)[x y] removeObjectAtIndex:z];[x didChange:NSKeyValueChangeRemoval valuesAtIndexes:[NSIndexSet indexSetWithIndex:z] forKey:@""#y];
 #define SHOWFILE(x) [[NSWorkspace sharedWorkspace] selectFile:x inFileViewerRootedAtPath:x.stringByDeletingLastPathComponent]
 NS_INLINE NSError* ModalError(NSError *error){
     if (error)

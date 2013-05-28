@@ -278,16 +278,23 @@
     [sender setPosition:([(NSSplitView *)sender isVertical]?[sender frame].size.width:[sender frame].size.height)/2 ofDividerAtIndex:0];
     [sender adjustSubviews];
 }
--(IBAction)hideTerminated:(id)sender {
-    //FIXME: how to hide?
-}
 -(IBAction)removeTerminated:(id)sender {
-    NSRect scroll = self.scrollPosition;
+    if ([sender isKindOfClass:IORegNode.class]) {
+        for (IORegNode *child in [[sender children] copy])
+            if (child.node.removed) {
+                NSUInteger i = [[sender children] indexOfObject:child];
+                removeWithNotice(sender, children, i)
+            }
+            else
+                [self removeTerminated:child];
+        return;
+    }
     for (IORegRoot *root in allPlanes)
         if (root.isLoaded)
-            root.children = nil;
-    self.scrollPosition = scroll;
-    for (IOReg *obj in allObjects) if (obj.removed) NSMapRemove(allObjects, (void *)obj.entryID);
+            [self removeTerminated:root];
+    for (IORegObj *obj in allObjects.objectEnumerator)
+        if (obj.removed)
+            NSMapRemove(allObjects, (void *)obj.entryID);//TODO: undo management?
 }
 
 #pragma mark IOService Notifications

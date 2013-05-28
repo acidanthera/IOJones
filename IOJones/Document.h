@@ -66,7 +66,6 @@
 -(IBAction)revealKext:(id)sender;
 -(IBAction)swapViews:(id)sender;
 -(IBAction)removeTerminated:(id)sender;
--(IBAction)hideTerminated:(id)sender;
 
 -(IOReg *)add:(io_registry_entry_t)object;
 
