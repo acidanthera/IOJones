@@ -65,6 +65,7 @@ static NSDictionary *green;
 +(IORegObj *)create:(io_registry_entry_t)entry for:(Document *)document{
     IORegObj *temp = [IORegObj new];
     temp.added = [NSDate date];
+    temp->_nodes = [NSHashTable weakObjectsHashTable];
     temp.document = document;
     io_name_t globalname = {};
     IORegistryEntryGetName(entry, globalname);
@@ -116,6 +117,12 @@ static NSDictionary *green;
     temp.planes = [dictionary objectForKey:@"planes"];
     temp.properties = [IORegProperty createWithDictionary:[dictionary objectForKey:@"properties"]];
     return temp;
+}
+-(void)registerNode:(IORegNode *)node {
+    [_nodes addObject:node];
+}
+-(NSSet *)registeredNodes {
+    return _nodes.setRepresentation;
 }
 
 -(NSDictionary *)dictionaryRepresentation {
@@ -233,9 +240,28 @@ static NSDateFormatter *dateFormatter;
     }
     return temp;
 }
+-(void)setNode:(IORegObj *)aNode {
+    [aNode registerNode:self];
+    self->node = aNode;
+}
+-(IORegObj *)node {
+    return self->node;
+}
 
 -(NSDictionary *)dictionaryRepresentation {
     return @{@"node":@(node.entryID), @"children": children.count?[children valueForKey:@"dictionaryRepresentation"]:@[]};
+}
+-(NSIndexPath *)indexPath {
+    NSUInteger length = 1, index = 0;
+    IORegNode *temp = self;
+    while (![temp isKindOfClass:IORegRoot.class] && length++) temp = temp.parent;
+    NSUInteger indexes[(index = length)];
+    temp = self;
+    while (index > 0) {
+        indexes[--index]=[temp.parent.children indexOfObject:temp];
+        temp = temp.parent;
+    }
+    return [NSIndexPath indexPathWithIndexes:indexes length:length];
 }
 -(NSMutableSet *)flat {
     NSMutableSet *flat = [NSMutableSet setWithObject:self];

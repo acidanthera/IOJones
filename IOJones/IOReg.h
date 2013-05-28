@@ -8,7 +8,10 @@
 
 @class Document;
 
-@interface IOReg : NSObject
+@interface IORegObj : NSObject {
+@private
+    NSHashTable *_nodes;
+}
 enum iostatus {
     initial,
     published,
@@ -27,6 +30,7 @@ enum iostatus {
 @property (readonly) bool isRegistered;
 @property (readonly) bool isService;
 @property (readonly) NSString *filteredProperty;
+@property (readonly) NSSet *registeredNodes;
 @property (assign) Document *document;
 @property enum iostatus status;
 @property NSString *ioclass;
@@ -55,6 +59,7 @@ enum iostatus {
 @property IORegObj *node;
 @property NSMutableArray *children;
 @property NSString *plane;
+@property (readonly) NSIndexPath *indexPath;
 @property (readonly) NSString *metaData;
 @property (readonly) NSMutableSet *flat;
 @property (readonly) NSDictionary *dictionaryRepresentation;
