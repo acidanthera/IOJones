@@ -137,6 +137,17 @@
 -(NSDictionary *)dictionaryRepresentation {
     return [_dict copy];
 }
+-(NSDictionary *)invertedDictionaryRepresentation {
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    for (NSString *key in _dict) {
+        id obj;
+        if ((obj = [dict objectForKey:[_dict objectForKey:key]]))
+            [obj addObject:key];
+        else
+            [dict setObject:[NSMutableArray arrayWithObject:key] forKey:[_dict objectForKey:key]];
+    }
+    return [dict copy];
+}
 
 -(NSString *)description {
     return [_dict description];

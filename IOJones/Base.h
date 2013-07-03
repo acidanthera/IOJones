@@ -39,6 +39,7 @@
     NSMutableSet *_set;
 }
 
+@property (readonly) NSDictionary *invertedDictionaryRepresentation;
 @property (readonly) NSDictionary *dictionaryRepresentation;
 +(NSMutableDictionarySet *)createWithDictionary:(NSDictionary *)dictionary;
 -(id)setObject:(id)anObject forKey:(id<NSCopying>)aKey;
