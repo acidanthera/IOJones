@@ -2,9 +2,9 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="8.00">
 	<data>
 		<int key="IBDocument.SystemTarget">1080</int>
-		<string key="IBDocument.SystemVersion">12D78</string>
+		<string key="IBDocument.SystemVersion">12E55</string>
 		<string key="IBDocument.InterfaceBuilderVersion">3084</string>
-		<string key="IBDocument.AppKitVersion">1187.37</string>
+		<string key="IBDocument.AppKitVersion">1187.39</string>
 		<string key="IBDocument.HIToolboxVersion">626.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -168,6 +168,11 @@
 															<int key="NSResizingMask">3</int>
 															<bool key="NSIsResizeable">YES</bool>
 															<reference key="NSTableView" ref="484987291"/>
+															<object class="NSSortDescriptor" key="NSSortDescriptorPrototype">
+																<string key="NSKey">node.currentName</string>
+																<bool key="NSAscending">YES</bool>
+																<string key="NSSelector">localizedStandardCompare:</string>
+															</object>
 														</object>
 													</array>
 													<double key="NSIntercellSpacingWidth">3</double>
@@ -333,6 +338,11 @@
 															<int key="NSResizingMask">3</int>
 															<bool key="NSIsResizeable">YES</bool>
 															<reference key="NSTableView" ref="771830445"/>
+															<object class="NSSortDescriptor" key="NSSortDescriptorPrototype">
+																<string key="NSKey">key</string>
+																<bool key="NSAscending">YES</bool>
+																<string key="NSSelector">localizedStandardCompare:</string>
+															</object>
 														</object>
 														<object class="NSTableColumn" id="399946432">
 															<double key="NSWidth">74</double>
@@ -358,6 +368,11 @@
 															<int key="NSResizingMask">3</int>
 															<bool key="NSIsResizeable">YES</bool>
 															<reference key="NSTableView" ref="771830445"/>
+															<object class="NSSortDescriptor" key="NSSortDescriptorPrototype">
+																<string key="NSKey">typeString</string>
+																<bool key="NSAscending">YES</bool>
+																<string key="NSSelector">localizedStandardCompare:</string>
+															</object>
 														</object>
 														<object class="NSTableColumn" id="1063427767">
 															<double key="NSWidth">127</double>
@@ -388,6 +403,11 @@
 															<int key="NSResizingMask">3</int>
 															<bool key="NSIsResizeable">YES</bool>
 															<reference key="NSTableView" ref="771830445"/>
+															<object class="NSSortDescriptor" key="NSSortDescriptorPrototype">
+																<string key="NSKey">description</string>
+																<bool key="NSAscending">YES</bool>
+																<string key="NSSelector">localizedStandardCompare:</string>
+															</object>
 														</object>
 													</array>
 													<double key="NSIntercellSpacingWidth">3</double>
@@ -1451,7 +1471,7 @@
 				<bool key="NSWindowIsRestorable">NO</bool>
 			</object>
 			<object class="NSCustomView" id="666917525">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">268</int>
 				<array class="NSMutableArray" key="NSSubviews">
 					<object class="NSTextField" id="993125095">
@@ -1459,6 +1479,7 @@
 						<int key="NSvFlags">268</int>
 						<string key="NSFrame">{{17, 4}, {228, 14}}</string>
 						<reference key="NSSuperview" ref="666917525"/>
+						<reference key="NSNextKeyView"/>
 						<string key="NSReuseIdentifierKey">_NS:1535</string>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSTextFieldCell" key="NSCell" id="212122172">
@@ -1486,7 +1507,7 @@
 										<int key="NSvFlags">256</int>
 										<string key="NSFrameSize">{220, 147}</string>
 										<reference key="NSSuperview" ref="360437586"/>
-										<reference key="NSNextKeyView" ref="311920337"/>
+										<reference key="NSNextKeyView" ref="735463558"/>
 										<string key="NSReuseIdentifierKey">_NS:13</string>
 										<bool key="NSEnabled">YES</bool>
 										<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
@@ -1535,8 +1556,12 @@
 												</object>
 												<int key="NSResizingMask">3</int>
 												<bool key="NSIsResizeable">YES</bool>
-												<bool key="NSIsEditable">YES</bool>
 												<reference key="NSTableView" ref="434975032"/>
+												<object class="NSSortDescriptor" key="NSSortDescriptorPrototype">
+													<string key="NSKey">node.currentName</string>
+													<bool key="NSAscending">YES</bool>
+													<string key="NSSelector">localizedStandardCompare:</string>
+												</object>
 											</object>
 											<object class="NSTableColumn" id="186832000">
 												<double key="NSWidth">98</double>
@@ -1561,8 +1586,12 @@
 												</object>
 												<int key="NSResizingMask">3</int>
 												<bool key="NSIsResizeable">YES</bool>
-												<bool key="NSIsEditable">YES</bool>
 												<reference key="NSTableView" ref="434975032"/>
+												<object class="NSSortDescriptor" key="NSSortDescriptorPrototype">
+													<string key="NSKey">node.filteredProperty</string>
+													<bool key="NSAscending">YES</bool>
+													<string key="NSSelector">localizedStandardCompare:</string>
+												</object>
 											</object>
 										</array>
 										<double key="NSIntercellSpacingWidth">3</double>
@@ -1633,13 +1662,14 @@
 						</array>
 						<string key="NSFrame">{{20, 20}, {222, 165}}</string>
 						<reference key="NSSuperview" ref="666917525"/>
-						<reference key="NSNextKeyView" ref="360437586"/>
+						<reference key="NSNextKeyView" ref="311920337"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<int key="NSsFlags">133682</int>
 						<reference key="NSVScroller" ref="735463558"/>
 						<reference key="NSHScroller" ref="44221505"/>
 						<reference key="NSContentView" ref="360437586"/>
 						<reference key="NSHeaderClipView" ref="311920337"/>
+						<reference key="NSCornerView" ref="885102085"/>
 						<bytes key="NSScrollAmts">QSAAAEEgAABBgAAAQYAAAA</bytes>
 						<double key="NSMinMagnification">0.25</double>
 						<double key="NSMaxMagnification">4</double>
@@ -1964,6 +1994,7 @@
 					</object>
 				</array>
 				<string key="NSFrameSize">{254, 350}</string>
+				<reference key="NSSuperview"/>
 				<reference key="NSNextKeyView" ref="984480884"/>
 				<string key="NSReuseIdentifierKey">_NS:9</string>
 				<string key="NSClassName">NSView</string>
