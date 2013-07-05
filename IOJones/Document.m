@@ -125,6 +125,9 @@
     if (_port) [self toggleUpdates:nil];
     [super close];
 }
+-(NSString *)defaultDraftName {
+    return [IORegObj systemName];
+}
 
 #pragma mark NSOutlineViewDelegate
 -(CGFloat)outlineView:(NSOutlineView *)outline heightOfRowByItem:(id)item{
