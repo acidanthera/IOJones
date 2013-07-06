@@ -373,7 +373,7 @@ static NSPredicate *filterBlock;
     else if (_pleated) self.children = _pleated;
 }
 -(NSDictionary *)dictionaryRepresentation {
-    return @{@"root":@(self.node.entryID), @"plane":self.plane, @"children":[self.children valueForKey:@"dictionaryRepresentation"]};
+    return @{@"root":@(self.node.entryID), @"plane":self.plane, @"children":[_pleated valueForKey:@"dictionaryRepresentation"]};
 }
 -(NSMutableArray *)children{
     if (![super children]) {
