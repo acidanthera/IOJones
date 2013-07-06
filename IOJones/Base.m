@@ -118,6 +118,14 @@
 
 @end
 
+@implementation NSNumber (ComparisonAdditions)
+
+-(NSComparisonResult)localizedStandardCompare:(id)obj {
+    return [self compare:obj];
+}
+
+@end
+
 @implementation NSMutableDictionarySet
 
 +(NSMutableDictionarySet *)createWithDictionary:(NSDictionary *)dictionary{
