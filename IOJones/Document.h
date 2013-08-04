@@ -18,6 +18,7 @@
     IONotificationPortRef _port;
     io_iterator_t _publish;
     io_iterator_t _terminate;
+    io_object_t _notice;
 }
 
 @property (strong) IBOutlet NSScrollView *outlineView;

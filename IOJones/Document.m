@@ -184,6 +184,7 @@
         IONotificationPortDestroy(_port);
         _port = 0;
         if (_publish) IOObjectRelease(_publish);
+        if (_notice) IOObjectRelease(_notice);
         if (_terminate) IOObjectRelease(_terminate);
     }
     else {
@@ -192,7 +193,10 @@
         if (IOServiceAddMatchingNotification(_port, kIOFirstPublishNotification, IOServiceMatching(kIOServiceClass), serviceNotification, (__bridge void *)self, &_publish) != KERN_SUCCESS)
             return [self toggleUpdates:nil];
         [self service:_publish];//TODO: wipe planes?, re-initialize?
-        for (IORegObj *obj in allObjects.objectEnumerator) [obj setStatus:initial];
+        io_service_t expert = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("IOPlatformExpertDevice"));
+        kern_return_t ret = IOServiceAddInterestNotification(_port, expert, kIOBusyInterest, busyNotification, (__bridge void *)self, &_notice);
+        IOObjectRelease(expert);
+        if (ret != KERN_SUCCESS) return [self toggleUpdates:nil];
         if (IOServiceAddMatchingNotification(_port, kIOTerminatedNotification, IOServiceMatching(kIOServiceClass), serviceNotification, (__bridge void *)self, &_terminate) != KERN_SUCCESS)
             return [self toggleUpdates:nil];
         [self service:_terminate];
@@ -313,25 +317,15 @@
 #pragma mark IOService Notifications
 -(NSArray *)service:(io_iterator_t)iterator {
     io_service_t service;
-    NSMutableArray *array;
-    if (iterator == _publish) {
-        array = [NSMutableArray array];
-        while ((service = IOIteratorNext(iterator))) {
-            IORegObj *obj = [self addObject:service];
-            [obj setStatus:published];
-            [array addObject:obj];
-        }
-    }
-    else if (iterator == _terminate)
-        while ((service = IOIteratorNext(iterator))) {
-            uint64_t entry;
-            IORegObj *obj;
-            IORegistryEntryGetRegistryEntryID(service, &entry);
-            IOObjectRelease(service);
-            if (!(obj = (__bridge IORegObj *)NSMapGet(allObjects, (void *)entry))) continue;
+    NSMutableArray *array = [NSMutableArray array];
+    while ((service = IOIteratorNext(iterator))) {
+        IORegObj *obj = [self addObject:service];
+        [array addObject:obj];
+        if (iterator == _terminate) {
             [obj setRemoved:[NSDate date]];
             muteWithNotice(obj, displayName, [obj setStatus:terminated])
         }
+    }
     return [array copy];
 }
 -(void)serviceNotification:(io_iterator_t)iterator {
@@ -352,6 +346,16 @@
 }
 void serviceNotification(void *refCon, io_iterator_t iterator) {
     [(__bridge Document *)refCon serviceNotification:iterator];
+}
+-(void)busyNotification:(io_service_t)service {
+    /*for (IORegNode *node in [[self addObject:service] registeredNodes]) {
+        [node.children removeAllObjects];
+        muteWithNotice(node, children, [node mutate])
+    }*/
+}
+void busyNotification(void *refCon, io_service_t service, uint32_t messageType, void *messageArgument) {
+    if (messageType == 0xE0000120 && !messageArgument)
+        [(__bridge Document *)refCon busyNotification:service];
 }
 
 #pragma mark Nonatomic Properties
