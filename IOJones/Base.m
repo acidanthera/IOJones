@@ -41,7 +41,7 @@
 -(bool)isTextual{
     NSUInteger i = 0, j = self.length, k = 0;
     if (j < 5) return false;
-    const char *bytes = self.bytes;
+    const UInt8 *bytes = self.bytes;
     while (i < j)
         if (bytes[i] >= 0x80 || bytes[i] < 0x20) {
             if (bytes[i++] == 0) k++;
@@ -54,7 +54,10 @@
     NSUInteger i = 0, j = self.length, k = j*(group+1)+1+!j;
     char description[k];
     description[0] = '<';
-    while (i < j) sprintf(description+(i*(group+1))+1, "%02x ", ((UInt8 *)self.bytes)[i++]);
+    while (i < j) {
+        sprintf(description+(i*(group+1))+1, "%02x ", ((UInt8 *)self.bytes)[i]);
+        i++;
+    }
     description[k-1] = '>';
     return [[NSString alloc] initWithBytes:description length:k encoding:NSMacOSRomanStringEncoding];
 }

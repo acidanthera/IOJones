@@ -441,8 +441,8 @@ void busyNotification(void *refCon, io_service_t service, uint32_t messageType, 
         [treeView scrollRowToVisible:i-1];
     }
     else {
-        NSUInteger i = 0, j = item.indexPath.length;
-        while (i < j) [browseView selectRow:[item.indexPath indexAtPosition:i] inColumn:i++];
+        NSInteger i = -1, j = item.indexPath.length;
+        while (i++ < j) [browseView selectRow:[item.indexPath indexAtPosition:i] inColumn:i];
         [browseView sendAction];
     }
 }
