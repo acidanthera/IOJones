@@ -95,9 +95,14 @@
                                     <action selector="performClose:" target="-1" id="193"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Save…" keyEquivalent="s" id="75">
+                            <menuItem title="Save" keyEquivalent="s" id="vKW-xW-z8i">
                                 <connections>
-                                    <action selector="saveDocument:" target="-1" id="362"/>
+                                    <action selector="saveDocument:" target="-1" id="MnK-pa-r7C"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Save As…" keyEquivalent="S" id="KHr-YG-kCT">
+                                <connections>
+                                    <action selector="saveDocumentAs:" target="-1" id="Nhe-5K-1rw"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Revert to Saved" id="112">
