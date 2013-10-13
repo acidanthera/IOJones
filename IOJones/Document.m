@@ -437,8 +437,12 @@ void busyNotification(void *refCon, io_service_t service, uint32_t messageType, 
 -(void)revealItem:(NSTreeNode *)item {
     if (treeView.window) {
         NSUInteger i = [treeView rowForItem:item];
+        if (i == -1) {
+            [self performSelector:_cmd withObject:item afterDelay:1];
+            return;
+        }
         [treeView selectRowIndexes:[NSIndexSet indexSetWithIndex:i] byExtendingSelection:false];
-        [treeView scrollRowToVisible:i-1];
+        [treeView scrollRowToVisible:i];
     }
     else {
         NSInteger i = -1, j = item.indexPath.length;
