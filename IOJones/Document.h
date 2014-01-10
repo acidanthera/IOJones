@@ -50,7 +50,6 @@
 -(IBAction)switchPlane:(id)sender;
 -(IBAction)filterTree:(id)sender;
 -(IBAction)find:(id)sender;
--(IBAction)toggleUpdates:(id)sender;
 -(IBAction)parent:(id)sender;
 -(IBAction)firstChild:(id)sender;
 -(IBAction)nextSibling:(id)sender;

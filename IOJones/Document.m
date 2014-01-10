@@ -65,7 +65,7 @@
 {
     // Insert code here to write your document to data of the specified type. If outError != NULL, ensure that you create and set an appropriate error when returning nil.
     // You can also choose to override -fileWrapperOfType:error:, -writeToURL:ofType:error:, or -writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
-    if (_port) [self toggleUpdates:self];
+    self.updating = false;
     [allPlanes makeObjectsPerformSelector:@selector(children)];
     [NSAllMapTableValues(allObjects) makeObjectsPerformSelector:@selector(bundle)];
     [NSAllMapTableValues(allObjects) makeObjectsPerformSelector:@selector(classChain)];
@@ -119,11 +119,11 @@
     for (NSString *plane in [IORegObj systemPlanes])
         [temp addObject:[IORegRoot root:root on:plane]];
     allPlanes = [temp copy];
-    [self toggleUpdates:nil];
+    self.updating = true;
     return self;
 }
 -(void)close {
-    if (_port) [self toggleUpdates:nil];
+    self.updating = false;
     browseView = nil;
     outlineView = nil;
     [super close];
@@ -181,30 +181,6 @@
     [[[propertyView.tableColumns objectAtIndex:1] headerCell] setTitle:property?:@"Property"];
     [propertyView.headerView setNeedsDisplay:true];
     muteWithNotice(self, drawerLabel,)
-}
--(IBAction)toggleUpdates:(id)sender {
-    if (_port) {
-        IONotificationPortDestroy(_port);
-        _port = 0;
-        if (_publish) IOObjectRelease(_publish);
-        if (_notice) IOObjectRelease(_notice);
-        if (_terminate) IOObjectRelease(_terminate);
-    }
-    else {
-        _port = IONotificationPortCreate(kIOMasterPortDefault);
-        CFRunLoopAddSource(CFRunLoopGetCurrent(), IONotificationPortGetRunLoopSource(_port), kCFRunLoopDefaultMode);
-        if (IOServiceAddMatchingNotification(_port, kIOFirstPublishNotification, IOServiceMatching(kIOServiceClass), serviceNotification, (__bridge void *)self, &_publish) != KERN_SUCCESS)
-            return [self toggleUpdates:nil];
-        [self service:_publish];//TODO: wipe planes?, re-initialize?
-        io_service_t expert = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("IOPlatformExpertDevice"));
-        kern_return_t ret = IOServiceAddInterestNotification(_port, expert, kIOBusyInterest, busyNotification, (__bridge void *)self, &_notice);
-        IOObjectRelease(expert);
-        if (ret != KERN_SUCCESS) return [self toggleUpdates:nil];
-        if (IOServiceAddMatchingNotification(_port, kIOTerminatedNotification, IOServiceMatching(kIOServiceClass), serviceNotification, (__bridge void *)self, &_terminate) != KERN_SUCCESS)
-            return [self toggleUpdates:nil];
-        [self service:_terminate];
-    }
-    muteWithNotice(self, updating,)
 }
 -(IBAction)parent:(id)sender {
     [self revealItem:[self.selectedItem parentNode]];
@@ -396,7 +372,34 @@ void busyNotification(void *refCon, io_service_t service, uint32_t messageType, 
     return (treeView.window)?[treeView itemAtRow:0]:[[browseView loadedCellAtRow:0 column:0] representedObject];
 }
 -(void)setUpdating:(bool)updating {
-    
+    if (_port && !updating) {
+        IONotificationPortDestroy(_port);
+        _port = 0;
+        if (_publish) IOObjectRelease(_publish);
+        if (_notice) IOObjectRelease(_notice);
+        if (_terminate) IOObjectRelease(_terminate);
+    }
+    else if (!_port && updating) {
+        _port = IONotificationPortCreate(kIOMasterPortDefault);
+        CFRunLoopAddSource(CFRunLoopGetCurrent(), IONotificationPortGetRunLoopSource(_port), kCFRunLoopDefaultMode);
+        if (IOServiceAddMatchingNotification(_port, kIOFirstPublishNotification, IOServiceMatching(kIOServiceClass), serviceNotification, (__bridge void *)self, &_publish) != KERN_SUCCESS) {
+            self.updating = false;
+            return;
+        }
+        io_service_t s;
+        while ((s = IOIteratorNext(_publish)))
+            [self addObject:s];
+        io_service_t expert = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("IOPlatformExpertDevice"));
+        kern_return_t ret = IOServiceAddInterestNotification(_port, expert, kIOBusyInterest, busyNotification, (__bridge void *)self, &_notice);
+        IOObjectRelease(expert);
+        if (ret != KERN_SUCCESS || IOServiceAddMatchingNotification(_port, kIOTerminatedNotification, IOServiceMatching(kIOServiceClass), serviceNotification, (__bridge void *)self, &_terminate) != KERN_SUCCESS){
+            self.updating = false;
+            return;
+        }
+        while ((s = IOIteratorNext(_terminate))) {
+            [[self addObject:s] setStatus:terminated];
+        }
+    }
 }
 -(bool)isUpdating {
     return (_port);
