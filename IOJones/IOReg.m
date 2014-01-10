@@ -64,23 +64,23 @@ static NSDictionary *green;
 
 +(IORegObj *)create:(io_registry_entry_t)entry for:(Document *)document{
     IORegObj *temp = [IORegObj new];
-    temp.added = [NSDate date];
+    temp->added = [NSDate date];
     temp->_nodes = [NSHashTable weakObjectsHashTable];
-    temp.document = document;
+    temp->document = document;
     io_name_t globalname = {};
     IORegistryEntryGetName(entry, globalname);
-    temp.name = [NSString stringWithCString:globalname encoding:NSMacOSRomanStringEncoding];
+    temp->name = [NSString stringWithCString:globalname encoding:NSMacOSRomanStringEncoding];
     IOObjectGetClass(entry, globalname);
-    temp.ioclass = [NSString stringWithCString:globalname encoding:NSMacOSRomanStringEncoding];
-    temp.kernel = IOObjectGetKernelRetainCount(entry);
-    temp.user = IOObjectGetUserRetainCount(entry);
+    temp->ioclass = [NSString stringWithCString:globalname encoding:NSMacOSRomanStringEncoding];
+    temp->kernel = IOObjectGetKernelRetainCount(entry);
+    temp->user = IOObjectGetUserRetainCount(entry);
     uint64_t entryid = 0, state = 0;
     uint32_t busy = 0;
     IORegistryEntryGetRegistryEntryID(entry, &entryid);
-    temp.entryID = entryid;
+    temp->entryID = entryid;
     CFMutableDictionaryRef properties;
     IORegistryEntryCreateCFProperties(entry, &properties, kCFAllocatorDefault, 0);
-    temp.properties = [IORegProperty createWithDictionary:(__bridge_transfer NSMutableDictionary *)properties];
+    temp->properties = [IORegProperty createWithDictionary:(__bridge_transfer NSMutableDictionary *)properties];
     NSMutableDictionary *planes = [NSMutableDictionary dictionary];
     for (NSString *plane in systemPlanes) {
         if (!IORegistryEntryInPlane(entry, [plane cStringUsingEncoding:NSMacOSRomanStringEncoding])) continue;
@@ -95,27 +95,27 @@ static NSDictionary *green;
         IORegistryEntryGetPath(entry, [plane cStringUsingEncoding:NSMacOSRomanStringEncoding], path);
         [planes setObject:@{@"name":[NSString stringWithCString:name encoding:NSMacOSRomanStringEncoding], @"location":[NSString stringWithCString:location encoding:NSMacOSRomanStringEncoding], @"path":[NSString stringWithCString:path encoding:NSMacOSRomanStringEncoding]} forKey:plane];
     }
-    temp.busy = busy;
-    temp.state = state;
-    temp.planes = [planes copy];
+    temp->busy = busy;
+    temp->state = state;
+    temp->planes = [planes copy];
     IOObjectRelease(entry);
     return temp;
 }
 +(IORegObj *)createWithDictionary:(NSDictionary *)dictionary for:(Document *)document {
     IORegObj *temp = [IORegObj new];
-    temp.document = document;
-    temp.ioclass = [dictionary objectForKey:@"class"];
-    temp.added = [dictionary objectForKey:@"added"];
-    temp.removed = [dictionary objectForKey:@"removed"];
-    temp.name = [dictionary objectForKey:@"name"];
-    temp.status = [[dictionary objectForKey:@"status"] longLongValue];
-    temp.state = [[dictionary objectForKey:@"state"] longLongValue];
-    temp.busy = [[dictionary objectForKey:@"busy"] longLongValue];
-    temp.kernel = [[dictionary objectForKey:@"kernel"] longLongValue];
-    temp.user = [[dictionary objectForKey:@"user"] longLongValue];
-    temp.entryID = [[dictionary objectForKey:@"id"] longLongValue];
-    temp.planes = [dictionary objectForKey:@"planes"];
-    temp.properties = [IORegProperty createWithDictionary:[dictionary objectForKey:@"properties"]];
+    temp->document = document;
+    temp->ioclass = [dictionary objectForKey:@"class"];
+    temp->added = [dictionary objectForKey:@"added"];
+    temp->removed = [dictionary objectForKey:@"removed"];
+    temp->name = [dictionary objectForKey:@"name"];
+    temp->status = [[dictionary objectForKey:@"status"] longLongValue];
+    temp->state = [[dictionary objectForKey:@"state"] longLongValue];
+    temp->busy = [[dictionary objectForKey:@"busy"] longLongValue];
+    temp->kernel = [[dictionary objectForKey:@"kernel"] longLongValue];
+    temp->user = [[dictionary objectForKey:@"user"] longLongValue];
+    temp->entryID = [[dictionary objectForKey:@"id"] longLongValue];
+    temp->planes = [dictionary objectForKey:@"planes"];
+    temp->properties = [IORegProperty createWithDictionary:[dictionary objectForKey:@"properties"]];
     return temp;
 }
 -(void)registerNode:(IORegNode *)node {
@@ -225,22 +225,22 @@ static NSPredicate *hideBlock;
 
 +(IORegNode *)create:(IORegObj *)node on:(IORegNode *)parent{
     IORegNode *temp = [IORegNode new];
-    temp.node = node;
-    temp.plane = parent.plane;
-    temp.parent = parent;
+    temp->node = node;
+    temp->plane = parent.plane;
+    temp->parent = parent;
     if (parent.children) [parent.children addObject:temp];
     else parent.children = [NSMutableArray arrayWithObject:temp];
     return temp;
 }
 +(IORegNode *)createWithDictionary:(NSDictionary *)dictionary on:(IORegNode *)parent {
     IORegNode *temp = [IORegNode new];
-    temp.parent = parent;
-    temp.plane = parent.plane;
-    temp.node = (__bridge IORegObj *)(NSMapGet(parent.node.document.allObjects, (void *)[[dictionary objectForKey:@"node"] longLongValue]));
+    temp->parent = parent;
+    temp->plane = parent.plane;
+    temp->node = (__bridge IORegObj *)(NSMapGet(parent.node.document.allObjects, (void *)[[dictionary objectForKey:@"node"] longLongValue]));
     if ([[dictionary objectForKey:@"children"] count]) {
-        temp.children = [NSMutableArray array];
+        temp->children = [NSMutableArray array];
         for (NSDictionary *ioreg in [dictionary objectForKey:@"children"])
-            [temp.children addObject:[IORegNode createWithDictionary:ioreg on:temp]];
+            [temp->children addObject:[IORegNode createWithDictionary:ioreg on:temp]];
     }
     return temp;
 }
@@ -260,12 +260,12 @@ static NSPredicate *hideBlock;
 -(NSIndexPath *)indexPath {
     NSUInteger length = 1, index = 0;
     IORegNode *temp = self;
-    while (![temp isKindOfClass:IORegRoot.class] && length++) temp = temp.parent;
+    while (![temp isKindOfClass:IORegRoot.class] && length++) temp = temp->parent;
     NSUInteger indexes[(index = length)];
     temp = self;
     while (index > 0) {
-        indexes[--index]=[temp.parent.children indexOfObject:temp];
-        temp = temp.parent;
+        indexes[--index]=[temp->parent->children indexOfObject:temp];
+        temp = temp->parent;
     }
     return [NSIndexPath indexPathWithIndexes:indexes length:length];
 }
@@ -429,20 +429,20 @@ static NSUInteger dateType;
 }
 +(IORegProperty *)create:(id)value forKey:(id)key {//TODO: unpack dicts dynamically?
     IORegProperty *temp = [IORegProperty new];
-    temp.key = [key copy];
+    temp->key = [key copy];
     temp->_type = CFGetTypeID((__bridge CFTypeRef)value);
     if (temp->_type == dictType && [value count]) {
         NSMutableArray *array = [NSMutableArray array];
         for (NSString *str in value)
             [array addObject:[IORegProperty create:[value objectForKey:str] forKey:str]];
-        temp.children = [array copy];
+        temp->children = [array copy];
     }
     else if (temp->_type == arrType && [value count]) {
         NSMutableArray *array = [NSMutableArray array];
         NSUInteger i = 0;
         for (id obj in value)
             [array addObject:[IORegProperty create:obj forKey:@(i++)]];
-        temp.children = [array copy];
+        temp->children = [array copy];
     }
     else temp->_value = value;
     if (temp->_type == dataType) temp->_subtype = [temp->_value isTextual] ? [[temp->_value macromanStrings] count] : -1;
