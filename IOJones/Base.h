@@ -35,14 +35,16 @@
 
 @interface NSMutableDictionarySet : NSObject {
     @private
-    NSMutableDictionary *_dict;
+    NSMapTable *_map;
     NSMutableSet *_set;
 }
 
 @property (readonly) NSDictionary *invertedDictionaryRepresentation;
 @property (readonly) NSDictionary *dictionaryRepresentation;
 +(NSMutableDictionarySet *)createWithDictionary:(NSDictionary *)dictionary;
--(id)setObject:(id)anObject forKey:(id<NSCopying>)aKey;
+-(id)setObject:(id)anObject forKey:(id)aKey;
 -(id)objectForKey:(id)aKey;
+-(id)objectForEquivalentKey:(id)aKey;
+-(NSArray *)chainForKey:(id)aKey;
 
 @end

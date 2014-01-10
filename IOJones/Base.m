@@ -139,40 +139,62 @@
 -(id)init {
     self = [super init];
     if (self) {
-        _dict = [NSMutableDictionary dictionary];
+        _map = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsOpaqueMemory|NSPointerFunctionsObjectPointerPersonality valueOptions:NSPointerFunctionsOpaqueMemory|NSPointerFunctionsObjectPointerPersonality];
         _set = [NSMutableSet set];
     }
     return self;
 }
 
 -(NSDictionary *)dictionaryRepresentation {
-    return [_dict copy];
+    return [_map dictionaryRepresentation];
 }
 -(NSDictionary *)invertedDictionaryRepresentation {
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    for (NSString *key in _dict) {
+    for (NSString *key in _map) {
         id obj;
-        if ((obj = [dict objectForKey:[_dict objectForKey:key]]))
+        if ((obj = [dict objectForKey:[_map objectForKey:key]]))
             [obj addObject:key];
         else
-            [dict setObject:[NSMutableArray arrayWithObject:key] forKey:[_dict objectForKey:key]];
+            [dict setObject:[NSMutableArray arrayWithObject:key] forKey:[_map objectForKey:key]];
     }
     return [dict copy];
 }
 
 -(NSString *)description {
-    return [_dict description];
+    return [_map description];
 }
 
--(id)setObject:(id)anObject forKey:(id<NSCopying>)aKey {
+-(id)setObject:(id)anObject forKey:(id)aKey {
     id obj;
-    if ((obj = [_set member:anObject])) [_dict setObject:obj forKey:aKey];
-    else [_dict setObject:anObject forKey:aKey];
-    return obj?:anObject;
+    if ((obj = [_set member:aKey]))
+        aKey = obj;
+    else
+        [_set addObject:aKey];
+    if ((obj = [_set member:anObject]))
+        anObject = obj;
+    else
+        [_set addObject:anObject];
+    [_map setObject:anObject forKey:aKey];
+    return anObject;
 }
 
 -(id)objectForKey:(id)aKey {
-    return [_dict objectForKey:aKey];
+    return [_map objectForKey:aKey];
+}
+
+-(id)objectForEquivalentKey:(id)aKey {
+    return [_map objectForKey:[_set member:aKey]];
+}
+
+-(NSArray *)chainForKey:(id)aKey {
+    if (!(aKey = [_set member:aKey]))
+        return nil;
+    NSMutableArray *chain = [NSMutableArray array];
+    while (chain.lastObject != aKey) {
+        [chain addObject:aKey];
+        aKey = [_map objectForKey:aKey];
+    }
+    return [chain copy];
 }
 
 @end

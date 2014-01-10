@@ -131,24 +131,24 @@ static NSDictionary *green;
     return @{@"class":ioclass, @"added":added, @"name":name, @"status":@(status), @"state":@(state), @"busy":@(busy), @"kernel":@(kernel), @"user":@(user), @"id":@(entryID), @"properties":[NSDictionary dictionaryWithObjects:[properties valueForKey:@"dictionaryRepresentation"] forKeys:[properties valueForKey:@"key"]], @"planes":planes};
 }
 -(NSArray *)classChain {
+    NSArray *chain;
+    if ((chain = [document.allClasses chainForKey:ioclass]))
+        return chain;
+    NSMutableArray *temp = [NSMutableArray arrayWithObject:ioclass];
     NSString *superclass, *class = ioclass;
-    NSMutableArray *chain = [NSMutableArray arrayWithObject:class];
-    while (![document.allClasses objectForKey:class] && (superclass = (__bridge_transfer NSString *)IOObjectCopySuperclassForClass((__bridge CFStringRef)class))) {
-        [document.allClasses setObject:superclass forKey:class];
-        class = superclass;
-        [chain addObject:class];
-    }
-    while (![[document.allClasses objectForKey:class] isEqualToString:class] && (class = [document.allClasses objectForKey:class]))
-        [chain addObject:class];
-    return [chain copy];
+    while (![document.allClasses objectForKey:class] && (superclass = (__bridge_transfer NSString *)IOObjectCopySuperclassForClass((__bridge CFStringRef)class)))
+        if ((class = [document.allClasses setObject:superclass forKey:class]) == superclass)
+            [temp addObject:class];
+        else
+            break;
+    [temp addObjectsFromArray:[document.allClasses chainForKey:class]];
+    return [temp copy];
 }
 -(NSString *)bundle {
     NSString *bundle;
-    if ((bundle = [document.allBundles objectForKey:ioclass])) return bundle;
+    if ((bundle = [document.allBundles objectForEquivalentKey:ioclass])) return bundle;
     bundle = (__bridge_transfer NSString *)IOObjectCopyBundleIdentifierForClass((__bridge CFStringRef)ioclass);
-    if ([bundle isEqualToString:@"__kernel__"]) bundle = [document.allBundles objectForKey:@"OSObject"];
-    [document.allBundles setObject:bundle forKey:ioclass];
-    return bundle;
+    return [document.allBundles setObject:[bundle isEqualToString:@"__kernel__"]?[document.allBundles objectForKey:@"OSObject"]:bundle forKey:ioclass];
 }
 -(NSArray *)paths {
     return [planes.allValues valueForKeyPath:@"path"];
