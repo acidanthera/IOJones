@@ -123,6 +123,8 @@
 }
 -(void)close {
     if (_port) [self toggleUpdates:nil];
+    browseView = nil;
+    outlineView = nil;
     [super close];
 }
 -(NSString *)defaultDraftName {
