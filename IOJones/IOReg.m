@@ -177,6 +177,9 @@ static NSDictionary *green;
     }
     else return name;
 }
++(NSSet *)keyPathsForValuesAffectingDisplayName {
+    return [NSSet setWithObjects:@"status", nil];
+}
 -(id)displayName {
     switch (status) {
         case initial: return self.currentName;

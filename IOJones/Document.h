@@ -36,7 +36,7 @@
 @property (nonatomic) NSRect scrollPosition;
 @property (nonatomic, getter = isUpdating) bool updating;
 @property (nonatomic, getter = isOutline) bool outline;
-@property NSIndexSet *selectedPlanes;
+@property (nonatomic) NSIndexSet *selectedPlanes;
 @property NSArray *selectedObjects;
 @property NSString *systemName;
 @property NSString *hostname;

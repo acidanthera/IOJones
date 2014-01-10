@@ -172,7 +172,6 @@
         [self performSelector:@selector(expandTree:) withObject:nil afterDelay:0];
     else [treeView performSelector:@selector(expandItem:) withObject:self.selectedRootNode afterDelay:0];
     [self showProperty:nil];
-    muteWithNotice(self, title,)
     if (path) [self performSelector:@selector(revealPath:) withObject:path afterDelay:0];
 }
 -(IBAction)showProperty:(id)sender {
@@ -280,10 +279,9 @@
     while ((service = IOIteratorNext(iterator))) {
         IORegObj *obj = [self addObject:service];
         [array addObject:obj];
-        if (iterator == _terminate) {
-            [obj setRemoved:[NSDate date]];
-            muteWithNotice(obj, displayName, [obj setStatus:terminated])
-        }
+        if (iterator == _terminate)
+            obj.removed = [NSDate date];
+        obj.status = iterator == _terminate ? terminated : iterator == _publish ? published : initial;
     }
     return [array copy];
 }
@@ -346,24 +344,23 @@ void busyNotification(void *refCon, io_service_t service, uint32_t messageType, 
     if ([selectedPlanes isEqualToIndexSet:_selectedPlanes]) return;
     [self filterTree:findView];
     _selectedPlanes = selectedPlanes;
-    muteWithNotice(self, title,)
 }
--(NSIndexSet *)selectedPlanes{
-    return _selectedPlanes;
-}
--(void)setSelectedObjects:(NSArray *)selectedObjects{
-    _selectedObjects = selectedObjects;
-    muteWithNotice(self, title,)
-}
--(NSArray *)selectedObjects{//TODO: bind to drawer selection
-    return _selectedObjects;
+//TODO: bind selectedObjects to drawer selection
++(NSSet *)keyPathsForValuesAffectingTitle {
+    return [NSSet setWithObjects:@"selectedPlane", @"selectedObjects", nil];
 }
 -(NSString *)title {
     return [NSString stringWithFormat:@"%@ - %@ - %@", systemName, self.selectedPlane.plane, self.selectedItem?[[[self.selectedItem representedObject] node] currentName]:@"(no object selected)"];
 }
++(NSSet *)keyPathsForValuesAffectingDrawerLabel {
+    return [NSSet setWithObjects:@"selectedPlane", nil];
+}
 -(NSString *)drawerLabel {
     if ([[findView stringValue] length]) return [NSString stringWithFormat:@"%ld object%s matched", self.selectedPlane.children.count, self.selectedPlane.children.count==1?"":"s"];
     else return @"No search";
+}
++(NSSet *)keyPathsForValuesAffectingSelectedPlane {
+    return [NSSet setWithObjects:@"selectedPlanes", nil];
 }
 -(IORegRoot *)selectedPlane {
     return [allPlanes objectAtIndex:_selectedPlanes.firstIndex];
