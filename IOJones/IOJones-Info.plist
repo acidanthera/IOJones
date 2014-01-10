@@ -8,9 +8,9 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
-			<string>iojones.icns</string>
+			<string>iojones</string>
 			<key>CFBundleTypeName</key>
-			<string>IOJones document</string>
+			<string>IOJones Document</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSItemContentTypes</key>
@@ -53,11 +53,11 @@
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>com.apple.property-list</string>
-				<string>public.content</string>
-				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>IOJones document</string>
+			<string>IOJones Document</string>
+			<key>UTTypeIconFile</key>
+			<string>iojones</string>
 			<key>UTTypeIdentifier</key>
 			<string>net.sourceforge.iojones</string>
 			<key>UTTypeTagSpecification</key>
@@ -69,16 +69,14 @@
 			</dict>
 		</dict>
 		<dict>
-			<key>UTTypeIconFile</key>
-			<string>ioreg.icns</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>com.apple.property-list</string>
-				<string>public.content</string>
-				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>IORegistryExplorer document</string>
+			<string>IORegistryExplorer Document</string>
+			<key>UTTypeIconFile</key>
+			<string>ioreg</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.apple.ioregistryexplorer.archive</string>
 			<key>UTTypeTagSpecification</key>

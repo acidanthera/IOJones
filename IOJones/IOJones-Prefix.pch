@@ -7,9 +7,9 @@
 #endif
 
 #define kIOJonesDomain @"IOJonesDomain"
-#define kIORegFileType @"com.apple.ioregistryexplorer.archive"
-#define kIOJonesFileType @"net.sourceforge.iojones"
-#define kPlistFileType @"com.apple.property-list"
+#define kUTTypeIOReg @"com.apple.ioregistryexplorer.archive"
+#define kUTTypeIOJones @"net.sourceforge.iojones"
+#define kUTTypePlist @"com.apple.property-list"
 #define kFileError 1
 
 #define assignWithNotice(x,y,z) [x willChangeValueForKey:@""#y];y=z;[x didChangeValueForKey:@""#y];

@@ -70,7 +70,7 @@
     [allPlanes makeObjectsPerformSelector:@selector(children)];
     NSError *err;
     NSData *data;
-    if ([typeName isEqualToString:kIOJonesFileType])
+    if ([typeName isEqualToString:kUTTypeIOJones])
         data = [NSPropertyListSerialization dataWithPropertyList:@{@"system":@{@"hostname":hostname, @"systemName":systemName, @"timestamp":timestamp},@"classes":allClasses.dictionaryRepresentation, @"bundles":allBundles.dictionaryRepresentation, @"objects":[NSAllMapTableValues(allObjects) valueForKey:@"dictionaryRepresentation"], @"planes": [allPlanes valueForKey:@"dictionaryRepresentation"]} format:NSPropertyListBinaryFormat_v1_0 options:0 error:&err];
     else //TODO: add other document support
         err = [NSError errorWithDomain:kIOJonesDomain code:kFileError userInfo:@{NSLocalizedDescriptionKey:@"Filetype Error", NSLocalizedFailureReasonErrorKey:[NSString stringWithFormat:@"Unknown Filetype %@", typeName]}];
@@ -86,7 +86,7 @@
     // If you override either of these, you should also override -isEntireFileLoaded to return NO if the contents are lazily loaded.
     NSError *err;
     NSDictionary *dict;
-    if ([typeName isEqualToString:kIOJonesFileType]) {
+    if ([typeName isEqualToString:kUTTypeIOJones]) {
         dict = [NSPropertyListSerialization propertyListWithData:data options:NSPropertyListImmutable format:NULL error:&err];
         allClasses = [NSMutableDictionarySet createWithDictionary:[dict objectForKey:@"classes"]];
         allBundles = [NSMutableDictionarySet createWithDictionary:[dict objectForKey:@"bundles"]];
