@@ -194,7 +194,7 @@ static NSDictionary *green;
     return (state & kIOServiceMatchedState) != 0;
 }
 -(bool)isService {
-    return [self.classChain containsObject:@"IOService"];
+    return ![ioclass isEqualToString:@"IORegistryEntry"];
 }
 -(NSString *)filteredProperty {
     NSString *property = [[NSUserDefaults.standardUserDefaults dictionaryForKey:@"find"] objectForKey:@"property"];
