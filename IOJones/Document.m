@@ -65,9 +65,9 @@
     // Insert code here to write your document to data of the specified type. If outError != NULL, ensure that you create and set an appropriate error when returning nil.
     // You can also choose to override -fileWrapperOfType:error:, -writeToURL:ofType:error:, or -writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
     if (_port) [self toggleUpdates:self];
+    [allPlanes makeObjectsPerformSelector:@selector(children)];
     [NSAllMapTableValues(allObjects) makeObjectsPerformSelector:@selector(bundle)];
     [NSAllMapTableValues(allObjects) makeObjectsPerformSelector:@selector(classChain)];
-    [allPlanes makeObjectsPerformSelector:@selector(children)];
     NSError *err;
     NSData *data;
     if ([typeName isEqualToString:kUTTypeIOJones])
