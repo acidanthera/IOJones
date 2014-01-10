@@ -108,7 +108,7 @@ static NSDictionary *green;
     temp->added = [dictionary objectForKey:@"added"];
     temp->removed = [dictionary objectForKey:@"removed"];
     temp->name = [dictionary objectForKey:@"name"];
-    temp->status = [[dictionary objectForKey:@"status"] longLongValue];
+    temp->status = [[dictionary objectForKey:@"status"] intValue];
     temp->state = [[dictionary objectForKey:@"state"] longLongValue];
     temp->busy = [[dictionary objectForKey:@"busy"] longLongValue];
     temp->kernel = [[dictionary objectForKey:@"kernel"] longLongValue];
