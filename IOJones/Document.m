@@ -50,6 +50,7 @@
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController
 {
     [super windowControllerDidLoadNib:aController];
+    treeView.sortDescriptors = @[[[treeView.tableColumns objectAtIndex:0] sortDescriptorPrototype]];
     // Add any code here that needs to be executed once the windowController has loaded the document's window.
     delayWithNotice(self, title, 0)
     [(NSSplitView *)treeView.superview.superview.superview restore];
