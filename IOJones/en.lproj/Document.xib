@@ -256,7 +256,6 @@
                             </segments>
                         </segmentedCell>
                         <connections>
-                            <action selector="swapViews:" target="-2" id="101427"/>
                             <binding destination="-2" name="selectedIndex" keyPath="outline" id="101483">
                                 <dictionary key="options">
                                     <string key="NSValueTransformerName">NSNegateBoolean</string>
@@ -1002,7 +1001,7 @@ Gw
                 <binding destination="-2" name="selectionIndexPaths" keyPath="selectedObjects" id="100681"/>
             </connections>
         </treeController>
-        <objectController objectClassName="IOReg" editable="NO" id="100254" userLabel="Entry">
+        <objectController objectClassName="IORegObj" editable="NO" id="100254" userLabel="Entry">
             <connections>
                 <binding destination="100253" name="contentObject" keyPath="selection.node" id="100394"/>
             </connections>

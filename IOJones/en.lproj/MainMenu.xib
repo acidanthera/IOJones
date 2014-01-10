@@ -373,13 +373,11 @@ CA
                         <items>
                             <menuItem title="Outline" keyEquivalent="t" id="548">
                                 <connections>
-                                    <action selector="swapViews:" target="-1" id="598"/>
                                     <binding destination="583" name="value" keyPath="selection.outline" id="600"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Browser" keyEquivalent="b" id="549">
                                 <connections>
-                                    <action selector="swapViews:" target="-1" id="599"/>
                                     <binding destination="583" name="value" keyPath="selection.outline" id="601">
                                         <dictionary key="options">
                                             <string key="NSValueTransformerName">NSNegateBoolean</string>

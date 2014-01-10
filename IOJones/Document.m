@@ -274,26 +274,6 @@
     NSURL *kext = (__bridge_transfer NSURL *)KextManagerCreateURLForBundleIdentifier(kCFAllocatorDefault, (__bridge CFStringRef)bundle);
     SHOWFILE(kext.path);
 }
--(IBAction)swapViews:(id)sender {//TODO: add default?
-    if ([sender respondsToSelector:@selector(segmentCount)] && [sender segmentCount]) {
-        NSInteger i = [sender selectedSegment];
-        if ((i && browseView.window) || (!i && outlineView.window)) return;
-    }
-    else if ([sender state]) return;
-    NSView *split, *swap;
-    if (outlineView.window) {
-        split = outlineView.superview;
-        swap = browseView;
-    }
-    else {
-        split = browseView.superview;
-        swap = outlineView;
-    }
-    bool vertical = ![(NSSplitView *)split isVertical];
-    muteWithNotice(self, outline, [split replaceSubview:[split.subviews objectAtIndex:0] with:swap])//FIXME: constraints
-    [(NSSplitView *)split setVertical:vertical];
-    [self performSelector:@selector(finishViews:) withObject:split afterDelay:0.01];
-}
 -(IBAction)finishViews:(id)sender {
     [sender setPosition:([(NSSplitView *)sender isVertical]?[sender frame].size.width:[sender frame].size.height)/2 ofDividerAtIndex:0];
     [sender adjustSubviews];
@@ -421,7 +401,22 @@ void busyNotification(void *refCon, io_service_t service, uint32_t messageType, 
 -(bool)isUpdating {
     return (_port);
 }
--(void)setOutline:(bool)outline {
+-(void)setOutline:(bool)outline {//TODO: add default?
+    NSView *split, *swap;
+    if (browseView.window && outline) {
+        split = browseView.superview;
+        swap = outlineView;
+    }
+    else if (outlineView.window && !outline) {
+        split = outlineView.superview;
+        swap = browseView;
+    }
+    if (!split)
+        return;
+    bool vertical = ![(NSSplitView *)split isVertical];
+    muteWithNotice(self, outline, [split replaceSubview:[split.subviews objectAtIndex:0] with:swap])//FIXME: constraints
+    [(NSSplitView *)split setVertical:vertical];
+    [self performSelector:@selector(finishViews:) withObject:split afterDelay:0.01];
     
 }
 -(bool)isOutline {

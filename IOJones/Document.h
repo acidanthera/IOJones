@@ -65,7 +65,6 @@
 -(IBAction)showPath:(id)sender;
 -(IBAction)goToPath:(id)sender;
 -(IBAction)revealKext:(id)sender;
--(IBAction)swapViews:(id)sender;
 -(IBAction)removeTerminated:(id)sender;
 
 -(IORegObj *)addObject:(io_registry_entry_t)object;
