@@ -258,7 +258,9 @@ static NSPredicate *hideBlock;
     return node.document.hiding?[[children filteredArrayUsingPredicate:hideBlock] mutableCopy]:children;
 }
 -(NSDictionary *)dictionaryRepresentation {
-    return @{@"node":@(node.entryID), @"children": children.count?[children valueForKey:@"dictionaryRepresentation"]:@[]};
+    return children.count
+    ? @{@"node":@(node.entryID), @"children": [children valueForKey:@"dictionaryRepresentation"]}
+    : @{@"node":@(node.entryID)};
 }
 -(NSIndexPath *)indexPath {
     NSUInteger length = 1, index = 0;
