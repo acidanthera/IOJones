@@ -11,31 +11,32 @@
 #import "Base.h"
 #import <IOKit/kext/KextManager.h>
 
-@implementation Document
-@synthesize outlineView;
-@synthesize treeView;
-@synthesize browseView;
-@synthesize findView;
-@synthesize propertyView;
-@synthesize pathWindow;
-@synthesize pathView;
-@synthesize systemName;
-@synthesize hostname;
-@synthesize timestamp;
-@synthesize allBundles;
-@synthesize allClasses;
-@synthesize allObjects;
-@synthesize allPlanes;
+@implementation Document {
+    @private
+    bool _drawer, _hiding;
+    NSIndexSet *_selectedPlanes;
+    NSArray *_selectedObjects;
+    IONotificationPortRef _port;
+    io_iterator_t _publish, _terminate;
+    io_object_t _notice;
+    IBOutlet NSScrollView *_outlineView;
+    IBOutlet NSBrowser *_browseView;
+    __unsafe_unretained IBOutlet NSOutlineView *_treeView;
+    __unsafe_unretained IBOutlet NSSearchField *_findView;
+    __unsafe_unretained IBOutlet NSTableView *_propertyView;
+    __unsafe_unretained IBOutlet NSWindow *_pathWindow;
+    __unsafe_unretained IBOutlet NSTextField *_pathView;
+}
 
 #pragma mark NSDocument
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     if (self) {
         // Add your subclass-specific initialization here.
-        allObjects = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsIntegerPersonality|NSPointerFunctionsOpaqueMemory valueOptions:NSPointerFunctionsObjectPersonality];
-        allClasses = [NSMutableDictionarySet new];
-        allBundles = [NSMutableDictionarySet new];
+        _allObjects = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsIntegerPersonality|NSPointerFunctionsOpaqueMemory valueOptions:NSPointerFunctionsObjectPersonality];
+        _allClasses = [NSMutableDictionarySet new];
+        _allBundles = [NSMutableDictionarySet new];
     }
     return self;
 }
@@ -50,10 +51,10 @@
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController
 {
     [super windowControllerDidLoadNib:aController];
-    treeView.sortDescriptors = @[[[treeView.tableColumns objectAtIndex:0] sortDescriptorPrototype]];
+    _treeView.sortDescriptors = @[[[_treeView.tableColumns objectAtIndex:0] sortDescriptorPrototype]];
     // Add any code here that needs to be executed once the windowController has loaded the document's window.
     delayWithNotice(self, title, 0)
-    [(NSSplitView *)treeView.superview.superview.superview restore];
+    [(NSSplitView *)_treeView.superview.superview.superview restore];
 }
 
 + (BOOL)autosavesInPlace
@@ -66,13 +67,13 @@
     // Insert code here to write your document to data of the specified type. If outError != NULL, ensure that you create and set an appropriate error when returning nil.
     // You can also choose to override -fileWrapperOfType:error:, -writeToURL:ofType:error:, or -writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
     self.updating = false;
-    [allPlanes makeObjectsPerformSelector:@selector(children)];
-    [NSAllMapTableValues(allObjects) makeObjectsPerformSelector:@selector(bundle)];
-    [NSAllMapTableValues(allObjects) makeObjectsPerformSelector:@selector(classChain)];
+    [_allPlanes makeObjectsPerformSelector:@selector(children)];
+    [NSAllMapTableValues(_allObjects) makeObjectsPerformSelector:@selector(bundle)];
+    [NSAllMapTableValues(_allObjects) makeObjectsPerformSelector:@selector(classChain)];
     NSError *err;
     NSData *data;
     if ([typeName isEqualToString:kUTTypeIOJones])
-        data = [NSPropertyListSerialization dataWithPropertyList:@{@"system":@{@"hostname":hostname, @"systemName":systemName, @"timestamp":timestamp},@"classes":allClasses.dictionaryRepresentation, @"bundles":allBundles.dictionaryRepresentation, @"objects":[NSAllMapTableValues(allObjects) valueForKey:@"dictionaryRepresentation"], @"planes": [allPlanes valueForKey:@"dictionaryRepresentation"]} format:NSPropertyListBinaryFormat_v1_0 options:0 error:&err];
+        data = [NSPropertyListSerialization dataWithPropertyList:@{@"system":@{@"hostname":_hostname, @"systemName":_systemName, @"timestamp":_timestamp},@"classes":_allClasses.dictionaryRepresentation, @"bundles":_allBundles.dictionaryRepresentation, @"objects":[NSAllMapTableValues(_allObjects) valueForKey:@"dictionaryRepresentation"], @"planes": [_allPlanes valueForKey:@"dictionaryRepresentation"]} format:NSPropertyListBinaryFormat_v1_0 options:0 error:&err];
     else //TODO: add other document support
         err = [NSError errorWithDomain:kIOJonesDomain code:kFileError userInfo:@{NSLocalizedDescriptionKey:@"Filetype Error", NSLocalizedFailureReasonErrorKey:[NSString stringWithFormat:@"Unknown Filetype %@", typeName]}];
     if (err && outError != NULL)
@@ -89,16 +90,16 @@
     NSDictionary *dict;
     if ([typeName isEqualToString:kUTTypeIOJones]) {
         dict = [NSPropertyListSerialization propertyListWithData:data options:NSPropertyListImmutable format:NULL error:&err];
-        allClasses = [NSMutableDictionarySet createWithDictionary:[dict objectForKey:@"classes"]];
-        allBundles = [NSMutableDictionarySet createWithDictionary:[dict objectForKey:@"bundles"]];
-        hostname = [[dict objectForKey:@"system"] objectForKey:@"hostname"];
-        systemName = [[dict objectForKey:@"system"] objectForKey:@"systemName"]?:[[[[dict objectForKey:@"system"] objectForKey:@"hostname"] componentsSeparatedByString:@" ("] objectAtIndex:0];
-        timestamp = [[dict objectForKey:@"system"] objectForKey:@"timestamp"];
+        _allClasses = [[NSMutableDictionarySet alloc] initWithDictionary:[dict objectForKey:@"classes"]];
+        _allBundles = [[NSMutableDictionarySet alloc] initWithDictionary:[dict objectForKey:@"bundles"]];
+        _hostname = [[dict objectForKey:@"system"] objectForKey:@"hostname"];
+        _systemName = [[dict objectForKey:@"system"] objectForKey:@"systemName"]?:[[[[dict objectForKey:@"system"] objectForKey:@"hostname"] componentsSeparatedByString:@" ("] objectAtIndex:0];
+        _timestamp = [[dict objectForKey:@"system"] objectForKey:@"timestamp"];
         for (NSDictionary *ioreg in [dict objectForKey:@"objects"]) [self addDict:ioreg];
         NSMutableArray *temp = [NSMutableArray array];
         for (NSDictionary *plane in [dict objectForKey:@"planes"])
-            [temp addObject:[IORegRoot createWithDictionary:plane on:allObjects]];
-        allPlanes = [temp copy];
+            [temp addObject:[[IORegRoot alloc] initWithDictionary:plane on:_allObjects]];
+        _allPlanes = [temp copy];
     }
     else
         err = [NSError errorWithDomain:kIOJonesDomain code:kFileError userInfo:@{NSLocalizedDescriptionKey:@"Filetype Error", NSLocalizedFailureReasonErrorKey:[NSString stringWithFormat:@"Unknown Filetype %@", typeName]}];
@@ -106,26 +107,26 @@
         *outError = err;
     return !err;
 }
--(id)initWithType:(NSString *)typeName error:(NSError *__autoreleasing *)outError {
+-(instancetype)initWithType:(NSString *)typeName error:(NSError *__autoreleasing *)outError {
     self = [self init];
     [self setFileType:typeName];
-    timestamp = [NSDate date];
+    _timestamp = [NSDate date];
     NSString *nsroot = @"OSObject";
-    [allClasses setObject:nsroot forKey:nsroot];
-    [allBundles setObject:@"com.apple.kernel" forKey:nsroot];
-    hostname = [NSString stringWithFormat:@"%@ (%@)", (systemName = [IORegObj systemName]), [IORegObj systemType]];
+    [_allClasses setObject:nsroot forKey:nsroot];
+    [_allBundles setObject:@"com.apple.kernel" forKey:nsroot];
+    _hostname = [NSString stringWithFormat:@"%@ (%@)", (_systemName = [IORegObj systemName]), [IORegObj systemType]];
     IORegObj *root = [self addObject:IORegistryGetRootEntry(kIOMasterPortDefault)];
     NSMutableArray *temp = [NSMutableArray array];
     for (NSString *plane in [IORegObj systemPlanes])
-        [temp addObject:[IORegRoot root:root on:plane]];
-    allPlanes = [temp copy];
+        [temp addObject:[[IORegRoot alloc] initWithNode:root on:plane]];
+    _allPlanes = [temp copy];
     self.updating = true;
     return self;
 }
 -(void)close {
     self.updating = false;
-    browseView = nil;
-    outlineView = nil;
+    _browseView = nil;
+    _outlineView = nil;
     [super close];
 }
 -(NSString *)defaultDraftName {
@@ -134,7 +135,7 @@
 
 #pragma mark NSOutlineViewDelegate
 -(CGFloat)outlineView:(NSOutlineView *)outline heightOfRowByItem:(id)item{
-    if (outline == treeView) return outline.rowHeight;
+    if (outline == _treeView) return outline.rowHeight;
     NSUInteger row = [outline rowForItem:item], rows = outline.tableColumns.count;
     CGFloat height = outline.rowHeight;
     while (rows-- > 0)
@@ -142,10 +143,10 @@
     return height;
 }
 -(void)outlineViewColumnDidResize:(NSNotification *)notification {
-    if (notification.object != treeView) [notification.object noteNumberOfRowsChanged];
+    if (notification.object != _treeView) [notification.object noteNumberOfRowsChanged];
 }
 -(NSString *)outlineView:(NSOutlineView *)outline toolTipForCell:(NSCell *)cell rect:(NSRectPointer)rect tableColumn:(NSTableColumn *)tableColumn item:(id)item mouseLocation:(NSPoint)mouseLocation {
-    if (outline == treeView || [outline.tableColumns indexOfObject:tableColumn] == 2)
+    if (outline == _treeView || [outline.tableColumns indexOfObject:tableColumn] == 2)
         return [[item representedObject] metaData];
     else return nil;
 }
@@ -155,11 +156,11 @@
     [self revealPath:[sender titleOfSelectedItem]];
 }
 -(IBAction)expandTree:(id)sender {
-    [treeView expandItem:sender expandChildren:true];
-    [treeView noteNumberOfRowsChanged];
+    [_treeView expandItem:sender expandChildren:true];
+    [_treeView noteNumberOfRowsChanged];
 }
 -(IBAction)find:(id)sender {
-    [findView.window makeFirstResponder:findView];
+    [_findView.window makeFirstResponder:_findView];
 }
 -(IBAction)filterTree:(id)sender {
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(coalesceFilter:) object:sender];
@@ -170,15 +171,15 @@
     [self.selectedPlane filter:[sender stringValue]];
     if (![[sender stringValue] length])
         [self performSelector:@selector(expandTree:) withObject:nil afterDelay:0];
-    else [treeView performSelector:@selector(expandItem:) withObject:self.selectedRootNode afterDelay:0];
+    else [_treeView performSelector:@selector(expandItem:) withObject:self.selectedRootNode afterDelay:0];
     [self showProperty:nil];
     if (path) [self performSelector:@selector(revealPath:) withObject:path afterDelay:0];
 }
 -(IBAction)showProperty:(id)sender {
     if (!_drawer) return;
     NSString *property = [[NSUserDefaults.standardUserDefaults dictionaryForKey:@"find"] objectForKey:@"property"];
-    [[[propertyView.tableColumns objectAtIndex:1] headerCell] setTitle:property?:@"Property"];
-    [propertyView.headerView setNeedsDisplay:true];
+    [[[_propertyView.tableColumns objectAtIndex:1] headerCell] setTitle:property?:@"Property"];
+    [_propertyView.headerView setNeedsDisplay:true];
     muteWithNotice(self, drawerLabel,)
 }
 -(IBAction)parent:(id)sender {
@@ -199,16 +200,16 @@
     [self expandTree:nil];
 }
 -(IBAction)collapseAll:(id)sender {
-    [treeView collapseItem:nil collapseChildren:true];
+    [_treeView collapseItem:nil collapseChildren:true];
 }
 -(IBAction)collapseSelection:(id)sender {
-    NSIndexPath *path = [[treeView itemAtRow:treeView.selectedRow] indexPath];
+    NSIndexPath *path = [[_treeView itemAtRow:_treeView.selectedRow] indexPath];
     NSTreeNode *node = [self.selectedRootNode parentNode];
     NSUInteger i = 0;
-    [treeView collapseItem:nil collapseChildren:true];
+    [_treeView collapseItem:nil collapseChildren:true];
     while (i < path.length) {
         node = [node.childNodes objectAtIndex:[path indexAtPosition:i++]];
-        [treeView expandItem:node];
+        [_treeView expandItem:node];
     }
     [self revealItem:node];
 }
@@ -233,15 +234,15 @@
     [self revealPath:[[[self.selectedItem representedObject] sortedPaths] lastObject]];
 }
 -(IBAction)showPath:(id)sender {
-    [NSApp beginSheet:pathWindow modalForWindow:self.windowForSheet modalDelegate:nil didEndSelector:nil contextInfo:nil];
+    [NSApp beginSheet:_pathWindow modalForWindow:self.windowForSheet modalDelegate:nil didEndSelector:nil contextInfo:nil];
 }
 -(IBAction)closePath:(id)sender {
-    [NSApp endSheet:pathWindow];
-    [pathWindow orderOut:sender];
+    [NSApp endSheet:_pathWindow];
+    [_pathWindow orderOut:sender];
 }
 -(IBAction)goToPath:(id)sender {
     [self closePath:sender];
-    [self revealPath:pathView.stringValue];
+    [self revealPath:_pathView.stringValue];
 }
 
 -(IBAction)revealKext:(id)sender {
@@ -264,12 +265,12 @@
                 [self removeTerminated:child];
         return;
     }
-    for (IORegRoot *root in allPlanes)
+    for (IORegRoot *root in _allPlanes)
         if (root.isLoaded)
             [self removeTerminated:root];
-    for (IORegObj *obj in allObjects.objectEnumerator)
+    for (IORegObj *obj in _allObjects.objectEnumerator)
         if (obj.removed)
-            NSMapRemove(allObjects, (void *)obj.entryID);//TODO: undo management?
+            NSMapRemove(_allObjects, (void *)obj.entryID);
 }
 
 #pragma mark IOService Notifications
@@ -281,7 +282,7 @@
         [array addObject:obj];
         if (iterator == _terminate)
             obj.removed = [NSDate date];
-        obj.status = iterator == _terminate ? terminated : iterator == _publish ? published : initial;
+        obj.status = iterator == _terminate ? IORegStatusTerminated : iterator == _publish ? IORegStatusPublished : IORegStatusInitial;
     }
     return [array copy];
 }
@@ -325,13 +326,13 @@ void busyNotification(void *refCon, io_service_t service, uint32_t messageType, 
     return _hiding;
 }
 -(void)setScrollPosition:(NSRect)scrollPosition {
-    if (treeView.window)
-        [treeView scrollRectToVisible:scrollPosition];
+    if (_treeView.window)
+        [_treeView scrollRectToVisible:scrollPosition];
     else
-        [browseView scrollRectToVisible:scrollPosition];
+        [_browseView scrollRectToVisible:scrollPosition];
 }
 -(NSRect)scrollPosition {
-    return treeView.window?treeView.visibleRect:browseView.visibleRect;
+    return _treeView.window?_treeView.visibleRect:_browseView.visibleRect;
 }
 -(void)setDrawer:(bool)drawer{
     _drawer = drawer;
@@ -342,7 +343,7 @@ void busyNotification(void *refCon, io_service_t service, uint32_t messageType, 
 }
 -(void)setSelectedPlanes:(NSIndexSet *)selectedPlanes{
     if ([selectedPlanes isEqualToIndexSet:_selectedPlanes]) return;
-    [self filterTree:findView];
+    [self filterTree:_findView];
     _selectedPlanes = selectedPlanes;
 }
 //TODO: bind selectedObjects to drawer selection
@@ -350,23 +351,23 @@ void busyNotification(void *refCon, io_service_t service, uint32_t messageType, 
     return [NSSet setWithObjects:@"selectedPlane", @"selectedObjects", nil];
 }
 -(NSString *)title {
-    return [NSString stringWithFormat:@"%@ - %@ - %@", systemName, self.selectedPlane.plane, self.selectedItem?[[[self.selectedItem representedObject] node] currentName]:@"(no object selected)"];
+    return [NSString stringWithFormat:@"%@ - %@ - %@", _systemName, self.selectedPlane.plane, self.selectedItem?[[[self.selectedItem representedObject] node] currentName]:@"(no object selected)"];
 }
 +(NSSet *)keyPathsForValuesAffectingDrawerLabel {
     return [NSSet setWithObjects:@"selectedPlane", nil];
 }
 -(NSString *)drawerLabel {
-    if ([[findView stringValue] length]) return [NSString stringWithFormat:@"%ld object%s matched", self.selectedPlane.children.count, self.selectedPlane.children.count==1?"":"s"];
+    if ([[_findView stringValue] length]) return [NSString stringWithFormat:@"%ld object%s matched", self.selectedPlane.children.count, self.selectedPlane.children.count==1?"":"s"];
     else return @"No search";
 }
 +(NSSet *)keyPathsForValuesAffectingSelectedPlane {
     return [NSSet setWithObjects:@"selectedPlanes", nil];
 }
 -(IORegRoot *)selectedPlane {
-    return [allPlanes objectAtIndex:_selectedPlanes.firstIndex];
+    return [_allPlanes objectAtIndex:_selectedPlanes.firstIndex];
 }
 -(NSTreeNode *)selectedRootNode {
-    return (treeView.window)?[treeView itemAtRow:0]:[[browseView loadedCellAtRow:0 column:0] representedObject];
+    return (_treeView.window)?[_treeView itemAtRow:0]:[[_browseView loadedCellAtRow:0 column:0] representedObject];
 }
 -(void)setUpdating:(bool)updating {
     if (_port && !updating) {
@@ -394,7 +395,7 @@ void busyNotification(void *refCon, io_service_t service, uint32_t messageType, 
             return;
         }
         while ((s = IOIteratorNext(_terminate))) {
-            [[self addObject:s] setStatus:terminated];
+            [[self addObject:s] setStatus:IORegStatusTerminated];
         }
     }
 }
@@ -403,13 +404,13 @@ void busyNotification(void *refCon, io_service_t service, uint32_t messageType, 
 }
 -(void)setOutline:(bool)outline {//TODO: add default?
     NSView *split, *swap;
-    if (browseView.window && outline) {
-        split = browseView.superview;
-        swap = outlineView;
+    if (_browseView.window && outline) {
+        split = _browseView.superview;
+        swap = _outlineView;
     }
-    else if (outlineView.window && !outline) {
-        split = outlineView.superview;
-        swap = browseView;
+    else if (_outlineView.window && !outline) {
+        split = _outlineView.superview;
+        swap = _browseView;
     }
     if (!split)
         return;
@@ -420,36 +421,36 @@ void busyNotification(void *refCon, io_service_t service, uint32_t messageType, 
     
 }
 -(bool)isOutline {
-    return (treeView.window);
+    return (_treeView.window);
 }
 -(id)selectedItem {
-    if (treeView.window) return [treeView itemAtRow:treeView.selectedRow];
-    else return [browseView.selectedCell representedObject];
+    if (_treeView.window) return [_treeView itemAtRow:_treeView.selectedRow];
+    else return [_browseView.selectedCell representedObject];
 }
 
 #pragma mark Traversal
 -(void)revealPath:(NSString *)path {
-    self.selectedPlanes = [NSIndexSet indexSetWithIndex:[allPlanes indexOfObjectIdenticalTo:[self rootForPath:path]]];
+    self.selectedPlanes = [NSIndexSet indexSetWithIndex:[_allPlanes indexOfObjectIdenticalTo:[self rootForPath:path]]];
     [self performSelector:@selector(revealItem:) withObject:[self find:[[self nodeForPath:path] node] on:self.selectedRootNode] afterDelay:0];
 }
 -(void)revealItem:(NSTreeNode *)item {
-    if (treeView.window) {
-        NSUInteger i = [treeView rowForItem:item];
+    if (_treeView.window) {
+        NSUInteger i = [_treeView rowForItem:item];
         if (i == -1) {
             [self performSelector:_cmd withObject:item afterDelay:1];
             return;
         }
-        [treeView selectRowIndexes:[NSIndexSet indexSetWithIndex:i] byExtendingSelection:false];
-        [treeView scrollRowToVisible:i];
+        [_treeView selectRowIndexes:[NSIndexSet indexSetWithIndex:i] byExtendingSelection:false];
+        [_treeView scrollRowToVisible:i];
     }
     else {
         NSInteger i = -1, j = item.indexPath.length;
-        while (i++ < j) [browseView selectRow:[item.indexPath indexAtPosition:i] inColumn:i];
-        [browseView sendAction];
+        while (i++ < j) [_browseView selectRow:[item.indexPath indexAtPosition:i] inColumn:i];
+        [_browseView sendAction];
     }
 }
 -(IORegRoot *)rootForPath:(NSString *)path {
-    for (IORegRoot *root in allPlanes)
+    for (IORegRoot *root in _allPlanes)
         if ([path hasPrefix:root.plane])
             return root;
     return nil;
@@ -483,16 +484,16 @@ void busyNotification(void *refCon, io_service_t service, uint32_t messageType, 
     UInt64 entry;
     IORegObj *temp;
     IORegistryEntryGetRegistryEntryID(object, &entry);
-    if (!(temp = (__bridge IORegObj *)NSMapGet(allObjects, (void *)entry))) {
-        temp = [IORegObj create:object for:self];
-        NSMapInsertKnownAbsent(allObjects, (void *)entry, (__bridge void *)temp);
+    if (!(temp = (__bridge IORegObj *)NSMapGet(_allObjects, (void *)entry))) {
+        temp = [[IORegObj alloc] initWithEntry:object for:self];
+        NSMapInsertKnownAbsent(_allObjects, (void *)entry, (__bridge void *)temp);
     }
     else IOObjectRelease(object);
     return temp;
 }
 - (void)addDict:(NSDictionary *)object{
-    IORegObj *temp = [IORegObj createWithDictionary:object for:self];
-    NSMapInsertKnownAbsent(allObjects, (void *)temp.entryID, (__bridge void *)temp);
+    IORegObj *temp = [[IORegObj alloc] initWithDictionary:object for:self];
+    NSMapInsertKnownAbsent(_allObjects, (void *)temp.entryID, (__bridge void *)temp);
 }
 
 @end

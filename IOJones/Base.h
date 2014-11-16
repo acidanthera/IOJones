@@ -21,27 +21,23 @@
 
 @interface NSData (DescriptionAdditions)
 
--(bool)isTextual;
+@property (readonly, getter = isTextual) bool textual;
+@property (readonly) NSArray *macromanStrings;
 -(NSString *)groupedDescription:(NSUInteger)group;
--(NSArray *)macromanStrings;
 
 @end
 
 @interface NSNumber (DescriptionAdditions)
 
--(NSUInteger)nSize;
+@property (readonly) NSUInteger nSize;
 
 @end
 
-@interface NSMutableDictionarySet : NSObject {
-    @private
-    NSMapTable *_map;
-    NSMutableSet *_set;
-}
+@interface NSMutableDictionarySet : NSObject
 
 @property (readonly) NSDictionary *invertedDictionaryRepresentation;
 @property (readonly) NSDictionary *dictionaryRepresentation;
-+(NSMutableDictionarySet *)createWithDictionary:(NSDictionary *)dictionary;
+-(instancetype)initWithDictionary:(NSDictionary *)dictionary;
 -(id)setObject:(id)anObject forKey:(id)aKey;
 -(id)objectForKey:(id)aKey;
 -(id)objectForEquivalentKey:(id)aKey;

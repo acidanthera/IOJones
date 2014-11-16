@@ -24,7 +24,7 @@
 +(NSArray *)range:(NSRange)range{
     NSUInteger i = range.location, j = NSMaxRange(range);
     NSMutableArray *temp = [NSMutableArray array];
-    while (i < j) [temp addObject:[NSNumber numberWithLong:i++]];
+    while (i < j) [temp addObject:[NSNumber numberWithUnsignedLong:i++]];
     return [temp copy];
 }
 -(bool)containsRange:(NSString *)string {
@@ -129,14 +129,20 @@
 
 @end
 
-@implementation NSMutableDictionarySet
-
-+(NSMutableDictionarySet *)createWithDictionary:(NSDictionary *)dictionary{
-    NSMutableDictionarySet *temp = [NSMutableDictionarySet new];
-    for (NSString *key in dictionary) [temp setObject:[dictionary objectForKey:key] forKey:key];
-    return temp;
+@implementation NSMutableDictionarySet {
+    @private
+    NSMapTable *_map;
+    NSMutableSet *_set;
 }
--(id)init {
+
+-(instancetype)initWithDictionary:(NSDictionary *)dictionary{
+    self = [self init];
+    if (self)
+        for (NSString *key in dictionary)
+            [self setObject:[dictionary objectForKey:key] forKey:key];
+    return self;
+}
+-(instancetype)init {
     self = [super init];
     if (self) {
         _map = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsOpaqueMemory|NSPointerFunctionsObjectPointerPersonality valueOptions:NSPointerFunctionsOpaqueMemory|NSPointerFunctionsObjectPointerPersonality];

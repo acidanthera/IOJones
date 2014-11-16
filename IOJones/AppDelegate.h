@@ -8,21 +8,12 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-
 @end
 
 @interface ArrayTransformer : NSValueTransformer
 
-+(Class)transformedValueClass;
-+(BOOL)allowsReverseTransformation;
--(id)transformedValue:(id)value;
-
 @end
 
 @interface ShouldEnable : NSValueTransformer
-
-+(Class)transformedValueClass;
-+(BOOL)allowsReverseTransformation;
--(id)transformedValue:(id)value;
 
 @end

@@ -8,45 +8,30 @@
 
 @class Document;
 
-@interface IORegObj : NSObject {
-@private
-    NSHashTable *_nodes;
-}
-enum iostatus {
-    initial,
-    published,
-    terminated
+typedef NS_ENUM(NSUInteger, IORegStatus) {
+    IORegStatusInitial,
+    IORegStatusPublished,
+    IORegStatusTerminated
 };
 
-@property (readonly) NSString *bundle;
-@property (readonly) NSArray *classChain;
-@property (readonly) NSArray *paths;
-@property (readonly) NSArray *sortedPaths;
-@property (readonly) NSString *currentName;
+@interface IORegObj : NSObject
+
+@property (readonly) NSString *bundle, *currentName, *filteredProperty;
+@property (readonly) NSArray *classChain, *paths, *sortedPaths;
 @property (readonly) id displayName;
 @property (readonly) NSDictionary *dictionaryRepresentation;
-@property (readonly) bool isActive;
-@property (readonly) bool isMatched;
-@property (readonly) bool isRegistered;
-@property (readonly) bool isService;
-@property (readonly) NSString *filteredProperty;
+@property (readonly) bool isActive, isMatched, isRegistered, isService;
 @property (readonly) NSSet *registeredNodes;
 @property (assign) Document *document;
-@property enum iostatus status;
-@property NSString *ioclass;
-@property NSDate *added;
-@property NSDate *removed;
-@property NSString *name;
-@property NSUInteger entryID;
-@property NSUInteger kernel;
-@property NSUInteger user;
-@property NSUInteger busy;
-@property NSUInteger state;
+@property IORegStatus status;
+@property NSString *ioclass, *name;
+@property NSDate *added, *removed;
+@property NSUInteger entryID, kernel, user, busy, state;
 @property NSArray *properties;
 @property NSDictionary *planes;
 
-+(IORegObj *)create:(io_registry_entry_t)entry for:(Document *)document;
-+(IORegObj *)createWithDictionary:(NSDictionary *)dictionary for:(Document *)document;
+-(instancetype)initWithEntry:(io_registry_entry_t)entry for:(Document *)document;
+-(instancetype)initWithDictionary:(NSDictionary *)dictionary for:(Document *)document;
 +(NSArray *)systemPlanes;
 +(NSString *)systemName;
 +(NSString *)systemType;
@@ -55,7 +40,7 @@ enum iostatus {
 
 @interface IORegNode : NSObject
 
-@property (weak) IORegNode *parent;
+@property (assign) IORegNode *parent;
 @property IORegObj *node;
 @property (nonatomic) NSMutableArray *children;
 @property NSString *plane;
@@ -64,42 +49,31 @@ enum iostatus {
 @property (readonly) NSMutableSet *flat;
 @property (readonly) NSDictionary *dictionaryRepresentation;
 
-+(IORegNode *)create:(IORegObj *)node on:(IORegNode *)parent;
-+(IORegNode *)createWithDictionary:(NSDictionary *)dictionary on:(IORegNode *)parent;
+-(instancetype)initWithNode:(IORegObj *)node on:(IORegNode *)parent;
+-(instancetype)initWithDictionary:(NSDictionary *)dictionary on:(IORegNode *)parent;
 -(void)mutate;
 
 @end
 
-@interface IORegRoot : IORegNode {
-    @private
-    NSMutableArray *_pleated;
-}
+@interface IORegRoot : IORegNode
+
 @property (readonly) bool isLoaded;
-+(IORegRoot *)root:(IORegObj *)root on:(NSString *)plane;
-+(IORegRoot *)createWithDictionary:(NSDictionary *)dictionary on:(NSMapTable *)table;
+-(instancetype)initWithNode:(IORegObj *)root on:(NSString *)plane;
+-(instancetype)initWithDictionary:(NSDictionary *)dictionary on:(NSMapTable *)table;
 -(void)filter:(NSString *)filter;
 
 @end
 
-@interface IORegProperty : NSObject {
-    @private
-    id _value;
-    NSInteger _type;
-    NSInteger _subtype;
-}
+@interface IORegProperty : NSObject
 
 @property NSString *key;
 @property NSArray *children;
-@property (readonly) NSInteger type;
-@property (readonly) NSInteger subtype;
-@property (readonly) NSString *typeString;
-@property (readonly) NSString *description;
+@property (readonly) NSInteger type, subtype;
+@property (readonly) NSString *typeString, *description, *metaData, *briefDescription;
 @property (readonly) NSColor *descriptionColor;
 @property (readonly) NSFont *descriptionFont;
-@property (readonly) NSString *briefDescription;
-@property (readonly) NSString *metaData;
 @property (readonly) NSDictionary *dictionaryRepresentation;
 
-+(NSArray *)createWithDictionary:(NSDictionary *)dictionary;
++(NSArray *)arrayWithDictionary:(NSDictionary *)dictionary;
 
 @end

@@ -7,13 +7,13 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Document">
             <connections>
-                <outlet property="browseView" destination="101472" id="101478"/>
-                <outlet property="findView" destination="101002" id="101011"/>
-                <outlet property="outlineView" destination="100094" id="101479"/>
-                <outlet property="pathView" destination="101395" id="101413"/>
-                <outlet property="pathWindow" destination="101393" id="101414"/>
-                <outlet property="propertyView" destination="101133" id="101348"/>
-                <outlet property="treeView" destination="100095" id="100638"/>
+                <outlet property="_browseView" destination="101472" id="aXO-Hb-hNO"/>
+                <outlet property="_findView" destination="101002" id="qou-pr-YsC"/>
+                <outlet property="_outlineView" destination="100094" id="8aQ-W0-TSH"/>
+                <outlet property="_pathView" destination="101395" id="6H8-Ji-zrQ"/>
+                <outlet property="_pathWindow" destination="101393" id="2Kx-FG-LTA"/>
+                <outlet property="_propertyView" destination="101133" id="ue1-Bx-YKW"/>
+                <outlet property="_treeView" destination="100095" id="V2d-Jb-5QM"/>
                 <outlet property="window" destination="5" id="101415"/>
             </connections>
         </customObject>

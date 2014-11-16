@@ -9,41 +9,20 @@
 @class IORegObj;
 @class NSMutableDictionarySet;
 
-@interface Document : NSDocument <NSOutlineViewDelegate> {
-    @private
-    bool _drawer;
-    bool _hiding;
-    NSIndexSet *_selectedPlanes;
-    NSArray *_selectedObjects;
-    IONotificationPortRef _port;
-    io_iterator_t _publish;
-    io_iterator_t _terminate;
-    io_object_t _notice;
-}
+@interface Document : NSDocument <NSOutlineViewDelegate>
 
-@property (strong) IBOutlet NSScrollView *outlineView;
-@property (strong) IBOutlet NSBrowser *browseView;
-@property (assign) IBOutlet NSOutlineView *treeView;
-@property (assign) IBOutlet NSSearchField *findView;
-@property (assign) IBOutlet NSTableView *propertyView;
-@property (assign) IBOutlet NSWindow *pathWindow;
-@property (assign) IBOutlet NSTextField *pathView;
-@property bool drawer;
-@property bool hiding;
+@property (readonly) NSSearchField *findView;
+@property bool drawer, hiding;
 @property (readonly) IORegRoot *selectedPlane;
-@property (readonly) NSString *title;
-@property (readonly) NSString *drawerLabel;
+@property (readonly) NSString *title, *drawerLabel;
 @property (nonatomic) NSRect scrollPosition;
 @property (nonatomic, getter = isUpdating) bool updating;
 @property (nonatomic, getter = isOutline) bool outline;
 @property (nonatomic) NSIndexSet *selectedPlanes;
-@property NSArray *selectedObjects;
-@property NSString *systemName;
-@property NSString *hostname;
+@property NSArray *selectedObjects, *allPlanes;
+@property NSString *systemName, *hostname;
 @property NSDate *timestamp;
-@property NSArray *allPlanes;
-@property NSMutableDictionarySet *allClasses;
-@property NSMutableDictionarySet *allBundles;
+@property NSMutableDictionarySet *allClasses, *allBundles;
 @property NSMapTable *allObjects;
 
 -(IBAction)showProperty:(id)sender;
