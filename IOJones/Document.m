@@ -70,6 +70,22 @@
     [_allPlanes makeObjectsPerformSelector:@selector(children)];
     [NSAllMapTableValues(_allObjects) makeObjectsPerformSelector:@selector(bundle)];
     [NSAllMapTableValues(_allObjects) makeObjectsPerformSelector:@selector(classChain)];
+    IORegObj *expert = nil;
+    for (IORegRoot *r in _allPlanes)
+        if ([r.plane isEqualToString:@kIOServicePlane]) {
+            for (IORegNode *n in [r.children.firstObject children])
+                if ([n.node.name isEqualToString:@"AppleACPIPlatformExpert"]) {
+                    expert = n.node;
+                    break;
+                }
+        }
+        else if (expert)
+            break;
+    if (![[expert.properties valueForKey:@"key"] containsObject:@"ACPI Tables"] && !self.fileURL) {
+        io_service_t e = IOServiceGetMatchingService(kIOMasterPortDefault, IORegistryEntryIDMatching(expert.entryID));
+        expert.properties = [expert.properties arrayByAddingObjectsFromArray:[IORegProperty arrayWithDictionary:@{@"ACPI Tables":(__bridge_transfer NSDictionary *)IORegistryEntryCreateCFProperty(e, CFSTR("ACPI Tables"), kCFAllocatorDefault, 0)}]];
+        IOObjectRelease(e);
+    }
     NSError *err;
     NSData *data;
     if ([typeName isEqualToString:kUTTypeIOJones])
