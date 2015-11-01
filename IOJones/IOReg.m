@@ -109,6 +109,9 @@ static NSDictionary *red, *green;
     }
     return self;
 }
+-(void)addProperties:(NSSet *)objects {
+    muteWithNotice(self, properties, _properties = [self.properties arrayByAddingObjectsFromArray:objects.allObjects]);
+}
 -(void)registerNode:(IORegNode *)node {
     [_nodes addObject:node];
 }

@@ -27,7 +27,7 @@ typedef NS_ENUM(NSUInteger, IORegStatus) {
 @property NSString *ioclass, *name;
 @property NSDate *added, *removed;
 @property NSUInteger entryID, kernel, user, busy, state;
-@property NSArray *properties;
+@property (readonly) NSArray *properties;
 @property NSDictionary *planes;
 
 -(instancetype)initWithEntry:(io_registry_entry_t)entry for:(Document *)document;
@@ -35,6 +35,8 @@ typedef NS_ENUM(NSUInteger, IORegStatus) {
 +(NSArray *)systemPlanes;
 +(NSString *)systemName;
 +(NSString *)systemType;
+
+-(void)addProperties:(NSSet *)objects;
 
 @end
 
