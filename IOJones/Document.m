@@ -51,7 +51,7 @@
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController
 {
     [super windowControllerDidLoadNib:aController];
-    _treeView.sortDescriptors = @[[[_treeView.tableColumns objectAtIndex:0] sortDescriptorPrototype]];
+    _treeView.sortDescriptors = @[[_treeView.tableColumns.firstObject sortDescriptorPrototype]];
     // Add any code here that needs to be executed once the windowController has loaded the document's window.
     delayWithNotice(self, title, 0)
     [(NSSplitView *)_treeView.superview.superview.superview restore];
@@ -109,7 +109,7 @@
         _allClasses = [[NSMutableDictionarySet alloc] initWithDictionary:[dict objectForKey:@"classes"]];
         _allBundles = [[NSMutableDictionarySet alloc] initWithDictionary:[dict objectForKey:@"bundles"]];
         _hostname = [[dict objectForKey:@"system"] objectForKey:@"hostname"];
-        _systemName = [[dict objectForKey:@"system"] objectForKey:@"systemName"]?:[[[[dict objectForKey:@"system"] objectForKey:@"hostname"] componentsSeparatedByString:@" ("] objectAtIndex:0];
+        _systemName = [[dict objectForKey:@"system"] objectForKey:@"systemName"]?:[[[[dict objectForKey:@"system"] objectForKey:@"hostname"] componentsSeparatedByString:@" ("] firstObject];
         _timestamp = [[dict objectForKey:@"system"] objectForKey:@"timestamp"];
         for (NSDictionary *ioreg in [dict objectForKey:@"objects"]) [self addDict:ioreg];
         NSMutableArray *temp = [NSMutableArray array];
@@ -183,7 +183,7 @@
     [self performSelector:@selector(coalesceFilter:) withObject:sender afterDelay:0.5];
 }
 -(IBAction)coalesceFilter:(id)sender {
-    NSString *path = [[[[self.selectedItem representedObject] node] sortedPaths] objectAtIndex:0];
+    NSString *path = [[[[self.selectedItem representedObject] node] sortedPaths] firstObject];
     [self.selectedPlane filter:[sender stringValue]];
     if (![[sender stringValue] length])
         [self performSelector:@selector(expandTree:) withObject:nil afterDelay:0];
@@ -202,7 +202,7 @@
     [self revealItem:[self.selectedItem parentNode]];
 }
 -(IBAction)firstChild:(id)sender {
-    [self revealItem:[[self.selectedItem childNodes] objectAtIndex:0]];
+    [self revealItem:[[self.selectedItem childNodes] firstObject]];
 }
 -(IBAction)nextSibling:(id)sender {
     NSArray *children = [[self.selectedItem parentNode] childNodes];
@@ -431,7 +431,7 @@ void busyNotification(void *refCon, io_service_t service, uint32_t messageType, 
     if (!split)
         return;
     bool vertical = ![(NSSplitView *)split isVertical];
-    muteWithNotice(self, outline, [split replaceSubview:[split.subviews objectAtIndex:0] with:swap])//FIXME: constraints
+    muteWithNotice(self, outline, [split replaceSubview:split.subviews.firstObject with:swap])//FIXME: constraints
     [(NSSplitView *)split setVertical:vertical];
     [self performSelector:@selector(finishViews:) withObject:split afterDelay:0.01];
     
@@ -475,12 +475,12 @@ void busyNotification(void *refCon, io_service_t service, uint32_t messageType, 
     IORegRoot *root;
     if (!(root = [self rootForPath:path])) return nil;
     else if ([path hasSuffix:@":"]) return root;
-    else if ([path hasSuffix:@"/"]) return [root.children objectAtIndex:0];
-    else return [self walkPathComponent:[path.pathComponents subarrayWithRange:NSMakeRange(1, path.pathComponents.count-1)] on:[root.children objectAtIndex:0]];
+    else if ([path hasSuffix:@"/"]) return root.children.firstObject;
+    else return [self walkPathComponent:[path.pathComponents subarrayWithRange:NSMakeRange(1, path.pathComponents.count-1)] on:root.children.firstObject];
 }
 -(IORegNode *)walkPathComponent:(NSArray *)components on:(IORegNode *)parent {
     for (IORegNode *child in parent.children)
-        if ([child.node.currentName isEqualToString:[components objectAtIndex:0]]) {
+        if ([child.node.currentName isEqualToString:components.firstObject]) {
             if (components.count == 1) return child;
             else return [self walkPathComponent:[components subarrayWithRange:NSMakeRange(1, components.count-1)] on:child];
         }
