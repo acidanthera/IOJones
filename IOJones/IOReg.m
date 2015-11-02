@@ -321,7 +321,7 @@ static NSPredicate *filterBlock;
                 if ([[evaluatedObject name] rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound)
                     return true;}
             else if ([key isEqualToString:@"bundle"]) {
-                if ([[evaluatedObject bundle] rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound)
+                if ([[(IORegObj *)evaluatedObject bundle] rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound)
                     return true;}
                 else if ([key isEqualToString:@"class"]) {
                     if ([[evaluatedObject ioclass] rangeOfString:value options:NSCaseInsensitiveSearch].location != NSNotFound)

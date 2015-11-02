@@ -274,7 +274,7 @@
     if ([sender isKindOfClass:IORegNode.class]) {
         for (IORegNode *child in [[sender children] copy])
             if (child.node.removed) {
-                NSUInteger i = [[sender children] indexOfObject:child];
+                NSUInteger i = [[(IORegNode *)sender children] indexOfObject:child];
                 removeWithNotice(sender, children, i)
             }
             else
