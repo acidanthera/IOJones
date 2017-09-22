@@ -10,6 +10,24 @@
 #import "IOReg.h"
 #import "Document.h"
 
+@interface NSWindow (FirstResponding)
+
+-(void)_setFirstResponder:(NSResponder *)responder;
+
+@end
+
+@interface NSDrawerWindow : NSWindow
+
+@end
+
+@implementation NSDrawerWindow (FirstResponding)
+
+-(void)_setFirstResponder:(NSResponder *)responder {
+    [super _setFirstResponder:![responder isKindOfClass:NSView.class] || [(NSView *)responder window] == self ? responder : nil];
+}
+
+@end
+
 @implementation AppDelegate
 
 -(void)awakeFromNib {
