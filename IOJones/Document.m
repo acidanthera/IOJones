@@ -83,7 +83,7 @@
             break;
     if (![[expert.properties valueForKey:@"key"] containsObject:@"ACPI Tables"] && !self.fileURL) {
         io_service_t e = IOServiceGetMatchingService(kIOMasterPortDefault, IORegistryEntryIDMatching(expert.entryID));
-        [expert addProperties:[NSSet setWithObject:[IORegProperty arrayWithDictionary:@{@"ACPI Tables":(__bridge_transfer NSDictionary *)IORegistryEntryCreateCFProperty(e, CFSTR("ACPI Tables"), kCFAllocatorDefault, 0)}]]];
+        [expert addProperties:[NSSet setWithArray:[IORegProperty arrayWithDictionary:@{@"ACPI Tables":(__bridge_transfer NSDictionary *)IORegistryEntryCreateCFProperty(e, CFSTR("ACPI Tables"), kCFAllocatorDefault, 0)}]]];
         IOObjectRelease(e);
     }
     NSError *err;
