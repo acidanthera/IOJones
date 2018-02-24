@@ -164,7 +164,7 @@
 -(NSString *)outlineView:(NSOutlineView *)outline toolTipForCell:(NSCell *)cell rect:(NSRectPointer)rect tableColumn:(NSTableColumn *)tableColumn item:(id)item mouseLocation:(NSPoint)mouseLocation {
     if (outline == _treeView || [outline.tableColumns indexOfObject:tableColumn] == 2)
         return [[item representedObject] metaData];
-    else return nil;
+    else return @"(no information)";
 }
 
 #pragma mark GUI
