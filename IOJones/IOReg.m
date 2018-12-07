@@ -477,7 +477,7 @@ static NSUInteger boolType, dictType, arrType, dataType, strType, numType, dateT
     else return [_value description];
 }
 -(NSColor *)descriptionColor {
-    return _type == dictType || _type == arrType?NSColor.grayColor:NSColor.blackColor;
+    return _type == dictType || _type == arrType?NSColor.disabledControlTextColor:NSColor.controlTextColor;
 }
 -(NSFont *)descriptionFont {
     return _type == dataType && _subtype <= 0?[NSFont userFixedPitchFontOfSize:NSFont.smallSystemFontSize-1]:[NSFont systemFontOfSize:NSFont.smallSystemFontSize];
