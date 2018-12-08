@@ -206,11 +206,15 @@
 }
 -(IBAction)nextSibling:(id)sender {
     NSArray *children = [[self.selectedItem parentNode] childNodes];
-    [self revealItem:[children objectAtIndex:[children indexOfObject:self.selectedItem]+1]];
+    NSUInteger newIndex = [children indexOfObject:self.selectedItem]+1;
+    if (newIndex < children.count)
+        [self revealItem:[children objectAtIndex:newIndex]];
 }
 -(IBAction)previousSibling:(id)sender {
     NSArray *children = [[self.selectedItem parentNode] childNodes];
-    [self revealItem:[children objectAtIndex:[children indexOfObject:self.selectedItem]-1]];
+    NSUInteger currentIndex = [children indexOfObject:self.selectedItem];
+    if (currentIndex > 0)
+        [self revealItem:[children objectAtIndex:currentIndex-1]];
 }
 -(IBAction)expandAll:(id)sender {
     [self expandTree:nil];
