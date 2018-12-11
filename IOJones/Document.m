@@ -21,11 +21,11 @@
     io_object_t _notice;
     IBOutlet NSScrollView *_outlineView;
     IBOutlet NSBrowser *_browseView;
-    __unsafe_unretained IBOutlet NSOutlineView *_treeView;
-    __unsafe_unretained IBOutlet NSSearchField *_findView;
-    __unsafe_unretained IBOutlet NSTableView *_propertyView;
-    __unsafe_unretained IBOutlet NSWindow *_pathWindow;
-    __unsafe_unretained IBOutlet NSTextField *_pathView;
+    IBOutlet NSOutlineView *_treeView;
+    IBOutlet NSSearchField *_findView;
+    IBOutlet NSTableView *_propertyView;
+    IBOutlet NSWindow *_pathWindow;
+    IBOutlet NSTextField *_pathView;
 }
 
 #pragma mark NSDocument
